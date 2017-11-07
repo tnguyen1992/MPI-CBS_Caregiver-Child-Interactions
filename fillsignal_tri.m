@@ -1,0 +1,13 @@
+
+
+x(CARE02(4,3):CARE02(4,3)+eve,1)=1
+x(CARE02(12,3):CARE02(12,3)+eve,1)=1
+
+x(CARE02(8,3):CARE02(8,3)+eve,2)=1
+x(CARE02(16,3):CARE02(16,3)+eve,2)=1
+
+x(CARE02(6,3):CARE02(6,3)+eve,3)=1
+x(CARE02(10,3):CARE02(10,3)+eve,3)=1
+x(CARE02(14,3):CARE02(14,3)+eve,3)=1
+
+x(CARE02(17,3):CARE02(17,3)+eve,4)=1

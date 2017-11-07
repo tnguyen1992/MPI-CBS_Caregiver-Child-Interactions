@@ -1,4 +1,4 @@
-function NIRx2nirs(NIRx_foldername, SD_filename)
+function NIRx2nirs(NIRx_foldername, SD_filename,outname)
 
 % NIRx2nirs.m version 1.0
 % #####################################################
@@ -113,7 +113,7 @@ end
 aux = zeros(length(d),8);
 t = 0:1/fs:length(d)/fs - 1/fs;
 
-outname = uiputfile('*.nirs','Save .nirs file ...');
+%outname = uiputfile('*.nirs','Save .nirs file ...');
 
-fprintf('Saving as %s ...\n',outname);
+%fprintf('Saving as %s ...\n',outname);
 save(outname,'d','s','t','aux','SD');
