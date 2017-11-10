@@ -20,7 +20,7 @@ selection = false;
 
 tmpPath = strcat(desPath, '01_raw_nirs/');
 
-sessionList    = dir([tmpPath, 'CARE_p01a_01_raw_nirs_*.nirs']);
+sessionList    = dir([tmpPath, 'CARE_d01a_01_raw_nirs_*.nirs']);
 sessionList    = struct2cell(sessionList);
 sessionList    = sessionList(1,:);
 numOfSessions  = length(sessionList);
@@ -28,7 +28,7 @@ numOfSessions  = length(sessionList);
 sessionNum     = zeros(1, numOfSessions);
 
 for i=1:1:numOfSessions
-  sessionNum(i) = sscanf(sessionList{i}, 'CARE_p01a_01_raw_nirs_%d.nirs');
+  sessionNum(i) = sscanf(sessionList{i}, 'CARE_d01a_01_raw_nirs_%d.nirs');
 end
 
 y = sprintf('%d ', sessionNum);
@@ -160,33 +160,33 @@ switch part
   case 0
     fileNamePre = [];
     tmpPath = strcat(desPath, '01_raw_nirs/');
-    fileNamePost = strcat(tmpPath, 'CARE_p*b_01_raw_nirs_', sessionStr, ...
+    fileNamePost = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
                           '.nirs');
   case 1
     fileNamePre = [];
     tmpPath = strcat(desPath, '01_raw_nirs/');
-    fileNamePost = strcat(tmpPath, 'CARE_p*b_01_raw_nirs_', sessionStr, ...
+    fileNamePost = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
                           '.nirs');
   case 2
     tmpPath = trcat(desPath, '01_raw_nirs/');
-    fileNamePre = strcat(tmpPath, 'CARE_p*b_01_raw_nirs_', sessionStr, ...
+    fileNamePre = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
                          '.nirs');
     tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePost = strcat(tmpPath, 'CARE_p*_02_preproc_', sessionStr, ...
+    fileNamePost = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
                           '.mat');
   case 3
     tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_p*_02_preproc_', sessionStr, ...
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
                          '.mat');
     tmpPath = strcat(desPath, '03_tvalue/');
-    fileNamePost = strcat(tmpPath, 'CARE_p*_03_tvalue_', sessionStr, ...
+    fileNamePost = strcat(tmpPath, 'CARE_d*_03_tvalue_', sessionStr, ...
                           '.mat');
   case 4
      tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_p*_02_preproc_', sessionStr, ...
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
                          '.mat');
     tmpPath = strcat(desPath, '04_wtc/');
-    fileNamePost = strcat(tmpPath, 'CARE_p*_04_wtc_', sessionStr, '.mat');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_04_wtc_', sessionStr, '.mat');
   otherwise
     error('Something unexpected happend. part = %d is not defined' ...
           , part);
@@ -205,7 +205,7 @@ else
     numOfFiles  = length(fileListPre);
     numOfPrePart = zeros(1, numOfFiles);
     for i=1:1:numOfFiles
-       numOfPrePart(i) = sscanf(fileListPre{i}, strcat('CARE_p%d*', ...
+       numOfPrePart(i) = sscanf(fileListPre{i}, strcat('CARE_d%d*', ...
                                 sessionStr, '.*'));
     end
   end
@@ -243,7 +243,7 @@ elseif strcmp(dyadsSpec, 'new')                                             % pr
       numOfFiles  = length(fileListPost);
       numOfPostPart = zeros(1, numOfFiles);
       for i=1:1:numOfFiles
-        numOfPostPart(i) = sscanf(fileListPost{i}, strcat('CARE_p%d*', sessionStr, '.*'));
+        numOfPostPart(i) = sscanf(fileListPost{i}, strcat('CARE_d%d*', sessionStr, '.*'));
       end
     end
   
