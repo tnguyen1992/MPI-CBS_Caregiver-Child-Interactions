@@ -20,7 +20,7 @@ selection = false;
 
 tmpPath = strcat(desPath, '01_raw_nirs/');
 
-sessionList    = dir([tmpPath, 'CARE_d01a_01_raw_nirs_*.nirs']);
+sessionList    = dir([tmpPath, 'CARE_d02a_01_raw_nirs_*.nirs']);
 sessionList    = struct2cell(sessionList);
 sessionList    = sessionList(1,:);
 numOfSessions  = length(sessionList);
@@ -28,7 +28,7 @@ numOfSessions  = length(sessionList);
 sessionNum     = zeros(1, numOfSessions);
 
 for i=1:1:numOfSessions
-  sessionNum(i) = sscanf(sessionList{i}, 'CARE_d01a_01_raw_nirs_%d.nirs');
+  sessionNum(i) = sscanf(sessionList{i}, 'CARE_d02a_01_raw_nirs_%d.nirs');
 end
 
 y = sprintf('%d ', sessionNum);
@@ -50,7 +50,11 @@ while selection == false
     elseif x == 0  
       selection = true;
       session = x;
-      sessionStr = sprintf('%03d', max(sessionNum) + 1);
+      if ~isempty(max(sessionNum))
+        sessionStr = sprintf('%03d', max(sessionNum) + 1);
+      else
+        sessionStr = sprintf('%03d', 1);
+      end
     else
       cprintf([1,0.5,0], 'Wrong input, session does not exist!\n');
     end

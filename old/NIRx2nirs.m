@@ -34,6 +34,12 @@ if ~exist('SD_filename','var');
 end
 load(SD_filename,'-mat');
 
+% Specify outname if not exist
+% Select NIRx folder containing .wl1, .wl2 and .hr files
+if ~exist('outname','var');
+outname = uigetdir(pwd,'Select output file...');
+end
+
 % Load wavelength d
 % #######################################################################
 wl1_dir = dir([NIRx_foldername '/*.wl1']);
