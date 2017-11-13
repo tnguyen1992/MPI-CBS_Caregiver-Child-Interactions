@@ -172,7 +172,7 @@ switch part
     fileNamePost = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
                           '.nirs');
   case 2
-    tmpPath = trcat(desPath, '01_raw_nirs/');
+    tmpPath = strcat(desPath, '01_raw_nirs/');
     fileNamePre = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
                          '.nirs');
     tmpPath = strcat(desPath, '02_preproc/');
