@@ -45,7 +45,8 @@ data.SD        = enPruneChannels(data.d, data.SD, data.tInc, data.dRange,...
 
 % correcting for motion artifacts using Wavelet-based motion correction.                                
 data.iQr      = 1.5;
-data.dod_corr = hmrMotionCorrectWavelet(data.dod, data.SD, data.iQr);
+[~, data.dod_corr] = evalc(...                                              % evalc supresses annoying fprintf output of hmrMotionCorrectWavelet
+                'hmrMotionCorrectWavelet(data.dod, data.SD, data.iQr);');
 
 % identifies motion artifacts in an input data matrix d. If any active
 % data channel exhibits a signal change greater than std_thresh or
