@@ -10,8 +10,8 @@ end
 %% generate sources/detectors definiton file and save it in gsePath location
 
 cfg = [];
-cfg.srcPath = srcPath;
 cfg.dyad    = 'CARE_02';
+cfg.srcPath = srcPath;
 cfg.gsePath = gsePath;
 
 CARE_createSDfile( cfg );

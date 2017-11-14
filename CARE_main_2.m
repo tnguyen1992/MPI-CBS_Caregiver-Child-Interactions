@@ -28,6 +28,7 @@ end
 % export the preprocessed data into a *.mat file
 
 for i = numOfPart
+  % load raw data of subject 1
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '01_raw_nirs/');
   cfg.filename    = sprintf('CARE_d%02da_01_raw_nirs', i);
@@ -45,6 +46,7 @@ for i = numOfPart
   
   clear SD d s aux t
   
+  % load raw data of subject 2
   cfg             = [];
   cfg.filename    = sprintf('CARE_d%02db_01_raw_nirs', i);
   
@@ -59,11 +61,13 @@ for i = numOfPart
   
   clear SD d s aux t
   
+  % preprocess raw data of poth subjects
   data_preproc = CARE_preprocessing(data_raw);
   
+  % save preprocessed data
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '02_preproc/');
-  cfg.filename    = sprintf('CARE_p%02d_02_preproc', i);
+  cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...

@@ -27,7 +27,7 @@ function CARE_NIRx2nirs( cfg )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-dyad        = CARE_getopt(cfg, 'dyad', []);
+dyadNum     = CARE_getopt(cfg, 'dyadNum', []);
 srcPath     = CARE_getopt(cfg, 'srcPath', []);
 desPath     = CARE_getopt(cfg, 'gsePath', ...
             '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/01_raw_nirs/');
@@ -39,18 +39,18 @@ if isempty(srcPath)
   error('No source path is specified!');
 end
 
-if isempty(dyad)
+if isempty(dyadNum)
   error('No file prefix is specified!');
 end
 
 % -------------------------------------------------------------------------
 % Build filenames
 % -------------------------------------------------------------------------
-Sub1SrcDir  = strcat(srcPath, sprintf('CARE_%02d', dyad), '/Subject1/');
-Sub2SrcDir  = strcat(srcPath, sprintf('CARE_%02d', dyad), '/Subject2/');
-Sub1DesFile = strcat(desPath, sprintf('CARE_d%02da_01_raw_nirs_', dyad), ...
+Sub1SrcDir  = strcat(srcPath, sprintf('CARE_%02d', dyadNum), '/Subject1/');
+Sub2SrcDir  = strcat(srcPath, sprintf('CARE_%02d', dyadNum), '/Subject2/');
+Sub1DesFile = strcat(desPath, sprintf('CARE_d%02da_01_raw_nirs_', dyadNum), ...
                      sessionStr, '.nirs');
-Sub2DesFile = strcat(desPath, sprintf('CARE_d%02db_01_raw_nirs_', dyad), ...
+Sub2DesFile = strcat(desPath, sprintf('CARE_d%02db_01_raw_nirs_', dyadNum), ...
                      sessionStr, '.nirs');
 
 % -------------------------------------------------------------------------
@@ -64,9 +64,9 @@ load(SDfile, '-mat', 'SD');
 if ~exist(Sub1SrcDir, 'dir')
   error('Directory: %s does not exist', Sub1SrcDir);
 else
-  Sub1_wl1File = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyad), '.wl1');
-  Sub1_wl2File = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyad), '.wl2');
-  Sub1_hdrFile = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyad), '.hdr');
+  Sub1_wl1File = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyadNum), '.wl1');
+  Sub1_wl2File = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyadNum), '.wl2');
+  Sub1_hdrFile = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyadNum), '.hdr');
   if ~exist(Sub1_wl1File, 'file')
     error('wl1 file: %s does not exist', Sub1_wl1File);
   end
@@ -81,9 +81,9 @@ end
 if ~exist(Sub2SrcDir, 'dir')
   error('Directory: %s does not exist', Sub2SrcDir);
 else
-  Sub2_wl1File = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyad), '.wl1');
-  Sub2_wl2File = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyad), '.wl2');
-  Sub2_hdrFile = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyad), '.hdr');
+  Sub2_wl1File = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyadNum), '.wl1');
+  Sub2_wl2File = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyadNum), '.wl2');
+  Sub2_hdrFile = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyadNum), '.hdr');
   if ~exist(Sub2_wl1File, 'file')
     error('wl1 file: %s does not exist', Sub2_wl1File);
   end
@@ -98,14 +98,21 @@ end
 % -------------------------------------------------------------------------
 % Convert and export data
 % -------------------------------------------------------------------------
-fprintf('Converting data from NIRx to NIRS for dyad %d, subject 1...\n', dyad);
-convertData(Sub1DesFile, Sub1_wl1File, Sub1_wl2File, Sub1_hdrFile, SD);
-fprintf('Converting data from NIRx to NIRS for dyad %d, subject 2...\n', dyad);
-convertData(Sub2DesFile, Sub2_wl1File, Sub2_wl2File, Sub2_hdrFile, SD);
+fprintf('Converting data from NIRx to NIRS for dyad %d, subject 1...\n',...
+        dyadNum);
+convertData(Sub1DesFile, Sub1_wl1File, Sub1_wl2File, Sub1_hdrFile, SD,...
+            dyadNum);
+fprintf('Converting data from NIRx to NIRS for dyad %d, subject 2...\n',...
+        dyadNum);
+convertData(Sub2DesFile, Sub2_wl1File, Sub2_wl2File, Sub2_hdrFile, SD,...
+            dyadNum);
 
 end
 
-function convertData (desFile, wl1File, wl2File, hdrFile, SD)
+% -------------------------------------------------------------------------
+% SUBFUNCTION data convertion
+% -------------------------------------------------------------------------
+function convertData (desFile, wl1File, wl2File, hdrFile, SD, num)
 wl1 = load(wl1File);                                                        % load .wl1 file
 wl2 = load(wl2File);                                                        % load .wl2 file
 
@@ -156,6 +163,9 @@ ind2 = find(contains(hdr_str(ind+1:end),'#')) - 1;
 ind2 = ind + ind2(1);
 events = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 events = events(:,2:3);
+if num < 7                                                                  %  correction of markers for dyads until number 6
+  events = correctEvents( events );
+end
 markertypes = unique(events(:,1));
 s = zeros(length(d),length(markertypes));
 for i = 1:length(markertypes)
@@ -170,5 +180,25 @@ t = t';                                                                     %#ok
 fprintf('Saving NIRS file: %s...\n', desFile);
 save(desFile, 'd', 's', 't', 'aux', 'SD');
 fprintf('Data stored!\n\n');
+
+end
+
+% -------------------------------------------------------------------------
+% SUBFUNCTION adapts the markers for dyads until number 6 to the current
+% definition (CARE specific)
+% -------------------------------------------------------------------------
+function events = correctEvents( events )
+
+events = events((events(:,1) ~= 13),:);                                     % remove all markers 13 from the list
+
+for i = 2:1:size(events, 1)
+  if(events(i,1) == 10)
+    events(i-1, 2) = events(i, 2);                                          % events 11, 12 are starting when the following marker 10 appears
+  elseif(events(i,1) > 13)
+    events(i,1) = events(i,1) - 1;                                          % substitute marker 14 and 15 with 13 and 14
+  end
+end
+
+events = events((events(:,1) ~= 10),:);                                     % remove all markers 10 from the list
 
 end

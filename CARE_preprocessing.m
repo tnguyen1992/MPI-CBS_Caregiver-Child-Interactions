@@ -11,6 +11,9 @@ function [data] = CARE_preprocessing( data )
 % Use as
 %   CARE_PREPROCESSING( data )
 %
+% where the input data has to be the result from CARE_NIRX2NIRS or
+% the exported *.nirs output from NIRStar.
+%
 % SEE also HMRINTENSITY2OD, ENPRUNECHANNELS, HMRMOTIONCORRECTWAVELET,
 % HMRMOTIONARTIFACT, HMRBANDPASSFILT, HMROD2CONC, CARE_XUCHECKDATAQUALITY
 

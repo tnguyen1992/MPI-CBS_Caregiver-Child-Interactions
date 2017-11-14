@@ -54,7 +54,7 @@ for i = numOfPart
     fprintf('Data copied!\n\n');
   else
     cfg = [];
-    cfg.dyad        = i;
+    cfg.dyadNum     = i;
     cfg.srcPath     = srcPath;
     cfg.desPath     = desFolder;
     cfg.SDfile      = strcat(gsePath, 'CARE.SD');

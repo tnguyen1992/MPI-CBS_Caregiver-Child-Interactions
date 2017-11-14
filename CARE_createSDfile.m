@@ -6,8 +6,8 @@ function CARE_createSDfile( cfg )
 %   CARE_createSDfile( cfg )
 %
 % The configuration options are
-%   cfg.srcPath     = path to *_probeInfo.mat and *_config.txt
 %   cfg.dyad        = dyad description (i.e. 'CARE_02')
+%   cfg.srcPath     = location of NIRx output for both subjects of the dyad
 %   cfg.gsePath     = memory location of the *.SD file (default: '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/')
 %
 % See also SDgui

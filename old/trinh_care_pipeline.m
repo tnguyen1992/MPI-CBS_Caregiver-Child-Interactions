@@ -1,5 +1,5 @@
 %% Trinh CARE Pipeline
-%NIRx to NIRS (ab care_20 müsste es eine nirs Datei geben)
+%NIRx to NIRS (ab care_20 m??sste es eine nirs Datei geben)
 %NIRx_foldername='/Users/trinhnguyen/MATLAB/data/RAW/CARE_19/Subject1'
 %SD_filename='/Users/trinhnguyen/MATLAB/data/NIRS/CARE.SD'
 %outname='/Users/trinhnguyen/MATLAB/data/NIRS/care191.nirs'
@@ -15,7 +15,7 @@ cibsrEcho_hmrPipeline(nirsFile,tId)
 % output T values of contrasts and beta values
 % dyads 2-6: old=1
 
-singlettest(tId, old,ndyad)
+singlettest(tId, old, ndyad)
 
 %% WTC Analysis
 % output coherence increase values and coherence values 
