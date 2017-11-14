@@ -28,8 +28,8 @@ if ~exist('numOfPart', 'var')                                               % es
   end
 end
 
-%% conduct a generalized linear model regression for all channels of the single objects
-% export the estimated beta coefficients into a *.mat file
+%% estimate wavelet coherence for dyads
+% export the estimated data into a *.mat file
 
 for i = numOfPart
   % load preprocessed data
@@ -49,26 +49,26 @@ for i = numOfPart
   
   eventMarkers = CARE_extractEventMarkers( cfg );
   
-  % conduct the generalized linear model regression
+  % estimate wavelet coherence
   cfg = [];
   cfg.eventMarkers = eventMarkers;
   
-  data_glm = CARE_glm(cfg, data_preproc);
+  data_wtc = CARE_wtc(cfg, data_preproc);
   
-  % save beta values of glm regression
+  % save wavelet coherence data
   cfg             = [];
-  cfg.desFolder   = strcat(desPath, '03_glm/');
-  cfg.filename    = sprintf('CARE_d%02d_03_glm', i);
+  cfg.desFolder   = strcat(desPath, '04_wtc/');
+  cfg.filename    = sprintf('CARE_d%02d_04_wtc', i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
 
-  fprintf('The generalized linear model coefficients of dyad %d will be saved in:\n', i); 
+  fprintf('The wavelet coherence data of dyad %d will be saved in:\n', i); 
   fprintf('%s ...\n', file_path);
-  CARE_saveData(cfg, 'data_glm', data_glm);
+  CARE_saveData(cfg, 'data_wtc', data_wtc);
   fprintf('Data stored!\n\n');
-  clear data_glm data_preproc 
+  clear data_wtc data_preproc 
   
 end
 
