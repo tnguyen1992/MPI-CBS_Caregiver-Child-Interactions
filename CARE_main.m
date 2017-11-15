@@ -114,7 +114,7 @@ else
     fprintf('[0] - Build sources/detectors definition\n');
     fprintf('[1] - Import/Convert raw data\n');
     fprintf('[2] - Data preprocessing\n');
-    fprintf('[3] - Calculation of T values of single subjects\n'); 
+    fprintf('[3] - Conduct a generalized linear model regression with single subjects\n'); 
     fprintf('[4] - Calculation of wavelet coherence\n');
     fprintf('[5] - Quit data processing\n\n');
     x = input('Option: ');
@@ -332,7 +332,7 @@ while sessionStatus == true
       selection = false;
       while selection == false
         fprintf('Continue data processing with:\n');
-        fprintf('[3] - Calculation of T values of single subjects\n');
+        fprintf('[3] - Conduct a generalized linear model regression with single subjects\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;

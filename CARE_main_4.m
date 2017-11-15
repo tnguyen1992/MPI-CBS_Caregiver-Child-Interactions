@@ -52,6 +52,7 @@ for i = numOfPart
   % estimate wavelet coherence
   cfg = [];
   cfg.eventMarkers = eventMarkers;
+  cfg.poi          = [230 1000];
   
   data_wtc = CARE_wtc(cfg, data_preproc);
   

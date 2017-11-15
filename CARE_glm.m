@@ -76,26 +76,22 @@ end
 
 function data_out = execGLM(evtMark, s, data_in)
     % build output matrix
-    topo = zeros(size(data_in.hbo, 2), 4);                                 
+    beta = zeros(size(data_in.hbo, 2), 4);                                 
   
   for channel = 1:1:size(data_in.hbo, 2)
     % conduct generalized linear model regression
-    [a, ~, ~] = glmfit(s, data_in.hbo(:, channel));
-    
     % beta estimates for a generalized linear regression of the responses 
     % in data_in.hbo(:, channel) on the predictors in the sMatrix
-    beta  = a(2:end);                                                       
-    %T     = c.t(2:end);
-    %p     = c.p(2:end);
-    
-    topo(channel, 1)    = channel;
-    topo(channel, 2:4)  = beta;
+    beta(channel,:) = glmfit(s, data_in.hbo(:, channel));
   end
   
   % put results into a structure
   data_out.eventMarker = evtMark;
   data_out.s           = s;
   data_out.hbo         = data_in.hbo;
-  data_out.topo        = topo;
+  data_out.time        = (1:1:size(data_in.hbo, 1)) / data_in.fs;
+  data_out.fsample     = data_in.fs;
+  data_out.channel     = 1:1:size(data_in.hbo, 2);
+  data_out.beta        = beta(:, 2:end);                                    % for the existing conditions only the columns 2:end are relevant  
 end
 
