@@ -5,13 +5,57 @@ fprintf('Copyright (C) 2017, Daniel Matthes, Quynh Trinh Nguyen, MPI CBS\n');
 fprintf('------------------------------------------------\n');
 
 % -------------------------------------------------------------------------
-% General definitions
+% Path settings
 % -------------------------------------------------------------------------
-srcPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';
-desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';
-gsePath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/';
+srcPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';               % location of raw data
+desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';         % memory space for processed data
+gsePath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/';       % path to CARE.SD
 
-clear sessionStr numOfPart part
+fprintf('\nThe default paths are:\n');
+fprintf('Source: %s\n',srcPath);
+fprintf('Destination: %s\n',desPath);
+fprintf('Location of CARE.SD: %s\n',gsePath);
+
+selection = false;
+while selection == false
+  fprintf('\nDo you want to select the default paths?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    newPaths = false;
+  elseif strcmp('n', x)
+    selection = true;
+    newPaths = true;
+  else
+    selection = false;
+  end
+end
+
+if newPaths == true
+  srcPath = uigetdir(pwd, 'Select Source Folder...');
+  desPath = uigetdir(strcat(srcPath,'/..'), ...
+                      'Select Destination Folder...');
+  gsePath = uigetdir(strcat(srcPath,'/..'), ...
+                      'Select Folder containing CARE.SD...');
+  srcPath = strcat(srcPath, '/');
+  desPath = strcat(desPath, '/');
+  gsePath = strcat(gsePath, '/');
+end
+
+if ~exist(strcat(desPath, '01_raw_nirs'), 'dir')
+  mkdir(strcat(desPath, '01_raw_nirs'));
+end
+if ~exist(strcat(desPath, '02_preproc'), 'dir')
+  mkdir(strcat(desPath, '02_preproc'));
+end
+if ~exist(strcat(desPath, '03_glm'), 'dir')
+  mkdir(strcat(desPath, '03_glm'));
+end
+if ~exist(strcat(desPath, '04_wtc'), 'dir')
+  mkdir(strcat(desPath, '04_wtc'));
+end
+
+clear sessionStr numOfPart part newPaths
 
 % -------------------------------------------------------------------------
 % Session selection
@@ -60,6 +104,8 @@ while selection == false
     end
   end
 end
+
+clear tmpPath
 
 % -------------------------------------------------------------------------
 % General selection of dyads
