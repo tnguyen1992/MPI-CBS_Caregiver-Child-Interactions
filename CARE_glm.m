@@ -33,12 +33,12 @@ end
 % -------------------------------------------------------------------------
 colCollaboration  = (eventMarkers == 11);
 colIndividual     = (eventMarkers == 12);
-colRest           = (eventMarkers == 13);
-colAll            = colCollaboration | colIndividual | colRest;
+colBaseline       = (eventMarkers == 13);
+colAll            = colCollaboration | colIndividual | colBaseline;
 
 durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
 durIndividual     = round(120 * data_preproc.sub1.fs - 1);                  % duration individual condition: 120 seconds 
-durRest           = round(80 * data_preproc.sub1.fs - 1);                   % duration rest condition: 80 seconds 
+durBaseline       = round(80 * data_preproc.sub1.fs - 1);                   % duration baseline condition: 80 seconds 
 
 % -------------------------------------------------------------------------
 % Adapt the s matrix
@@ -47,7 +47,7 @@ sMatrix = data_preproc.sub1.s;
 
 evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);
-evtRest           = find(sMatrix(:, colRest) > 0);
+evtBaseline       = find(sMatrix(:, colBaseline) > 0);
 
 for i = evtCollaboration
   sMatrix(i:i+durCollaboration, colCollaboration) = 1;
@@ -57,8 +57,8 @@ for i = evtIndividual
   sMatrix(i:i+durIndividual, colIndividual) = 1;
 end
 
-for i = evtRest
-  sMatrix(i:i+durRest, colRest) = 1;
+for i = evtBaseline
+  sMatrix(i:i+durBaseline, colBaseline) = 1;
 end
 
 eventMarkers      = eventMarkers(colAll);

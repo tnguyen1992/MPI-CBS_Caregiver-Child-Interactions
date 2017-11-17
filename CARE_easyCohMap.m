@@ -9,31 +9,31 @@ function CARE_easyCohMap( cfg, data )
 % where the input data has to be a result of CARE_WTC.
 %
 % The configuration options are
-%   cfg.params    = coherence parameter (default: 4 or 'CBCI', see CARE_DATASTRUCTURE)
+%   cfg.condition = condition value (default: 1113 or 'Collab-Base', see CARE_DATASTRUCTURE)
 %
-% See also CARE_GLM and CARE_DATASTRUCTURE
+% See also CARE_WTC, CARE_CHECKCONDITION and CARE_DATASTRUCTURE
 
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-params   = ft_getopt(cfg, 'param', 4);
+condition   = ft_getopt(cfg, 'condition', 1113);
 
-params    = CARE_checkCohParam( params );                                   % check cfg.params definition
-if ~any(ismember(data.params, params))
-  error('The selected dataset contains no parameter %d.', params);
+condition    = CARE_checkCondition( condition );                            % check cfg.condition definition
+if ~any(ismember(data.params, condition))
+  error('The selected dataset contains no condition %d.', condition);
 else
-  column = find(ismember(data.params, params));
+  column = find(ismember(data.params, condition));
 end
 
 % -------------------------------------------------------------------------
 % Generate title cell array
 % ------------------------------------------------------------------------
-figTitle{1,1} = 'Coherence in collaboration condition';
-figTitle{1,2} = 'Coherence in individual condition';
-figTitle{1,3} = 'Coherence in baseline condition';
-figTitle{1,4} = 'Coherence increase between collaboration and baseline condition';
-figTitle{1,5} = 'Coherence increase between individual and baseline condition';
-figTitle{1,6} = 'Coherence increase between collaboration and individual condition';
+figTitle{1, 1} = 'Coherence in collaboration condition';
+figTitle{1, 2} = 'Coherence in individual condition';
+figTitle{1, 3} = 'Coherence in baseline condition';
+figTitle{1, 4} = 'Coherence increase between collaboration and baseline condition';
+figTitle{1, 5} = 'Coherence increase between individual and baseline condition';
+figTitle{1, 6} = 'Coherence increase between collaboration and individual condition';
 
 % -------------------------------------------------------------------------
 % Extract data and generate a coherence map

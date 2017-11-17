@@ -37,20 +37,20 @@ end
 % -------------------------------------------------------------------------
 colCollaboration  = (eventMarkers == 11);
 colIndividual     = (eventMarkers == 12);
-colRest           = (eventMarkers == 13);
-colAll            = colCollaboration | colIndividual | colRest;
+colBaseline       = (eventMarkers == 13);
+colAll            = colCollaboration | colIndividual | colBaseline;
 
 % define Duration of conditions
 durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
 durIndividual     = round(120 * data_preproc.sub1.fs - 1);                  % duration individual condition: 120 seconds 
-durRest           = round(80 * data_preproc.sub1.fs - 1);                   % duration rest condition: 80 seconds 
+durBaseline       = round(80 * data_preproc.sub1.fs - 1);                   % duration baseline condition: 80 seconds 
 
 % determine sample points when events occur (start of condition)
 sMatrix = data_preproc.sub1.s;
 
 evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);
-evtRest           = find(sMatrix(:, colRest) > 0);
+evtBaseline       = find(sMatrix(:, colBaseline) > 0);
 
 % remove unused events
 eventMarkers      = eventMarkers(colAll);
@@ -79,7 +79,7 @@ pnoi(2) = find(period > poi(2), 1, 'first');
 coherences  = zeros(numOfChan, 6);
 meanCohCollab = zeros(1, length(evtCollaboration));                         % mean coherence in a defined spectrum for condition collaboration  
 meanCohIndiv  = zeros(1, length(evtIndividual));                            % mean coherence in a defined spectrum for condition individual
-meanCohRest   = zeros(1, length(evtRest));                                  % mean coherence in a defined spectrum for condition rest
+meanCohBase   = zeros(1, length(evtBaseline));                              % mean coherence in a defined spectrum for condition baseline
 
 % -------------------------------------------------------------------------
 % Calculate Coherence increase between conditions for every channel of the 
@@ -105,28 +105,30 @@ for i=1:1:numOfChan
   end
  
   % baseline
-  for j=1:1:length(evtRest)
-    meanCohRest(j)    = mean(mean(Rsq(pnoi(1):pnoi(2), ...
-                        evtRest(j):evtRest(j) + ...
-                        durRest)));
+  for j=1:1:length(evtBaseline)
+    meanCohBase(j)    = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+                        evtBaseline(j):evtBaseline(j) + ...
+                        durBaseline)));
   end
 
   collaboration  = mean(meanCohCollab);                                     % average mean coherences over trials
   individual     = mean(meanCohIndiv);
-  baseline       = mean(meanCohRest);
+  baseline       = mean(meanCohBase);
  
   CBCI   = collaboration - baseline;                                        % coherence increase between collaboration and baseline
   IBCI   = individual - baseline;                                           % coherence increase between individual and baseline
-  CICI  = collaboration - individual;                                       % coherence increase between collaboration and individual
+  CICI   = collaboration - individual;                                      % coherence increase between collaboration and individual
  
   coherences(i, 1:6) = [collaboration, individual, baseline, CBCI, IBCI,...
-                         CICI];
+                        CICI];
 end
 
 % put results into the output data structure
 data_wtc.coherences           = coherences;
-data_wtc.params               = {'Coll', 'Indi', 'Base', 'CBCI', 'IBCI',... % this field describes the columns of the coherences field
-                                'CICI'};
+data_wtc.params               = [11, 12, 13, 1113, 1213, 1112];
+data_wtc.paramStings          = {'Collaboration', 'Individual', ...         % this field describes the columns of the coherences field
+                                 'Baseline', 'Collab-Base', ...
+                                 'Indiv-Base', 'Collab-Indiv'};
 data_wtc.channels             = 1:1:size(hboSub1, 2);                              
 data_wtc.eventMarker          = eventMarkers;
 data_wtc.s                    = sMatrix;
@@ -136,9 +138,9 @@ data_wtc.cfg.period           = period;
 data_wtc.cfg.poi              = poi;
 data_wtc.cfg.evtCollaboration = evtCollaboration;
 data_wtc.cfg.evtIndividual    = evtIndividual;
-data_wtc.cfg.evtRest          = evtRest;
+data_wtc.cfg.evtRest          = evtBaseline;
 data_wtc.cfg.durCollaboration = durCollaboration;
 data_wtc.cfg.durIndividual    = durIndividual;
-data_wtc.cfg.durRest          = durRest;
+data_wtc.cfg.durRest          = durBaseline;
 
 end
