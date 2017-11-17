@@ -125,7 +125,7 @@ end
 
 % put results into the output data structure
 data_wtc.coherences           = coherences;
-data_wtc.values               = {'Coll', 'Indi', 'Base', 'CBCI', 'IBCI',... % this field describes the columns of the coherences field
+data_wtc.params               = {'Coll', 'Indi', 'Base', 'CBCI', 'IBCI',... % this field describes the columns of the coherences field
                                 'CICI'};
 data_wtc.channels             = 1:1:size(hboSub1, 2);                              
 data_wtc.eventMarker          = eventMarkers;

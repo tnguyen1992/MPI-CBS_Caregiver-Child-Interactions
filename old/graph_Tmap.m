@@ -6,9 +6,8 @@
 % end
 %%%%%%%%%FF
 %clear all
-clear cohin map mapping
-cohin = data_glm.sub1.beta;
-cohin = [(1:16)' cohin];
+clear cohin map mapping sensPos
+cohin = data_wtc.coherences;
 
 %% positions in map from real t value
 % matrix of channel *1, each value represents the t value between task-rest comparison
@@ -69,7 +68,7 @@ imagesc(mapping);axis off;
 colormap(jet);
 colorbar;
 
-mappingSize = size(mapping, 1);
+mappingSize = size(mapping, 1) - 1;
 sensPos = 1/8 * [1,2,3,5,6,7] * mappingSize;
 
 text(sensPos(1), sensPos(2), '\bullet 1', 'FontSize', 12, ...

@@ -6,7 +6,7 @@ function CARE_easyCohPlot(cfg, data)
 % Use as
 %   CARE_easyCohPlot(cfg, data)
 %
-% where the input data is a results from CARE_WTC.
+% where the input data has to be a result of CARE_WTC.
 %
 % The configuration options are 
 %   cfg.channel = number of channel (1 to 16) (default: 1)
