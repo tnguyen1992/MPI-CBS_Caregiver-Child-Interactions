@@ -64,7 +64,7 @@ selection = false;
 
 tmpPath = strcat(desPath, '01_raw_nirs/');
 
-sessionList    = dir([tmpPath, 'CARE_d02a_01_raw_nirs_*.nirs']);
+sessionList    = dir([tmpPath, 'CARE_d*a_01_raw_nirs_*.nirs']);
 sessionList    = struct2cell(sessionList);
 sessionList    = sessionList(1,:);
 numOfSessions  = length(sessionList);
@@ -72,9 +72,12 @@ numOfSessions  = length(sessionList);
 sessionNum     = zeros(1, numOfSessions);
 
 for i=1:1:numOfSessions
-  sessionNum(i) = sscanf(sessionList{i}, 'CARE_d02a_01_raw_nirs_%d.nirs');
+  sessionList{i} = strsplit(sessionList{i}, '01_raw_nirs_');
+  sessionList{i} = sessionList{i}{end};
+  sessionNum(i) = sscanf(sessionList{i}, '%d.nirs');
 end
 
+sessionNum = unique(sessionNum);
 y = sprintf('%d ', sessionNum);
 
 while selection == false
