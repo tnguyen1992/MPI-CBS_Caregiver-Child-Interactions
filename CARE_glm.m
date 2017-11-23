@@ -49,15 +49,15 @@ evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);
 evtBaseline       = find(sMatrix(:, colBaseline) > 0);
 
-for i = evtCollaboration
+for i = evtCollaboration'
   sMatrix(i:i+durCollaboration, colCollaboration) = 1;
 end
 
-for i = evtIndividual
+for i = evtIndividual'
   sMatrix(i:i+durIndividual, colIndividual) = 1;
 end
 
-for i = evtBaseline
+for i = evtBaseline'
   sMatrix(i:i+durBaseline, colBaseline) = 1;
 end
 
