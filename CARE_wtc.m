@@ -126,10 +126,10 @@ end
 % put results into the output data structure
 data_wtc.coherences           = coherences;
 data_wtc.params               = [11, 12, 13, 1113, 1213, 1112];
-data_wtc.paramStings          = {'Collaboration', 'Individual', ...         % this field describes the columns of the coherences field
+data_wtc.paramStrings         = {'Collaboration', 'Individual', ...         % this field describes the columns of the coherences field
                                  'Baseline', 'Collab-Base', ...
                                  'Indiv-Base', 'Collab-Indiv'};
-data_wtc.channels             = 1:1:size(hboSub1, 2);                              
+data_wtc.channel              = 1:1:size(hboSub1, 2);                              
 data_wtc.eventMarker          = eventMarkers;
 data_wtc.s                    = sMatrix;
 data_wtc.hboSub1              = hboSub1;

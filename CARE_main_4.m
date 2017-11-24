@@ -68,7 +68,7 @@ for i = numOfPart
   fprintf('The wavelet coherence data of dyad %d will be saved in:\n', i); 
   fprintf('%s ...\n', file_path);
   CARE_saveData(cfg, 'data_wtc', data_wtc);
-  fprintf('Data stored!\n');
+  fprintf('Data stored!\n\n');
   clear data_wtc data_preproc 
   
 end

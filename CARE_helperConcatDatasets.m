@@ -19,15 +19,17 @@ function CARE_helperConcatDatasets( cfg )
 %   * Rename CARE_XX_2.hdr to CARE_XX_2.hdr.org
 %   * Run this function (output will be generated in working directory to
 %     avoid the manipulation of the original data)
-%   * Copy CARE_XX.nirs.sub1 to /data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/CARE_XX/Subject1/CARE_XX.nirs
-%   * Copy CARE_XX.nirs.sub2 to /data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/CARE_XX/Subject2/CARE_XX.nirs
+%   * Copy CARE_XX.nirs.sub1 to 
+%     /data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/CARE_XX/Subject1/CARE_XX.nirs
+%   * Copy CARE_XX.nirs.sub2 to 
+%     /data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/CARE_XX/Subject2/CARE_XX.nirs
 %   * Add the additional events in hdrX.mat into the associated section in 
 %     CARE_XX.hdr for both subjects
 %   * NOTE: There will be slightly differences in the timestamps for the 
 %     first decimal place which can be ignored, since the timestamps from
 %     the *.hdr file are not used for the data processing
 %
-% SEE also CARE_NIRX2NIRS
+% See also CARE_NIRX2NIRS
 
 % Copyright (C) 2017, Daniel Matthes, MPI CBS
 
