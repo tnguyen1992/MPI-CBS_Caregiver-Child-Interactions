@@ -68,10 +68,20 @@ numOfChan = size(hboSub1, 2);
 % Estimate periods of interest
 % -------------------------------------------------------------------------
 pnoi = zeros(2,1);
-[~,period,~,~,~] = wtc(hboSub1(:,16), hboSub2(:,16), 'mcc', 0); 
-
-pnoi(1) = find(period > poi(1), 1, 'first');
-pnoi(2) = find(period > poi(2), 1, 'first');
+i = 16;
+while (isnan(hboSub1(1, i)) || isnan(hboSub2(1, i)))                        % check if 16 th channel was not rejected in both subjects during preprocessing
+  i = i - 1;                                                                % if 16th channel was rejected in at least on subject
+  if i == 0                                                                 % search for next channel which was not rejected  
+    break;
+  end
+end
+if i ~= 0
+  [~,period,~,~,~] = wtc(hboSub1(:,16), hboSub2(:,16), 'mcc', 0); 
+  pnoi(1) = find(period > poi(1), 1, 'first');
+  pnoi(2) = find(period > poi(2), 1, 'first');
+else
+  period = NaN;                                                             % if all channel were rejected, the value period cannot be extimated and will be therefore set to NaN
+end                                                                       
 
 % -------------------------------------------------------------------------
 % Allocate memory
@@ -87,40 +97,44 @@ meanCohBase   = zeros(1, length(evtBaseline));                              % me
 % -------------------------------------------------------------------------
 fprintf('Calculation of the wavelet coherence for all channels...\n');
 for i=1:1:numOfChan
-  Rsq = wtc(hboSub1(:,i), hboSub2(:,i), 'mcc', 0);                          % r square - measure for coherence
+  if ~isnan(hboSub1(1, i)) && ~isnan(hboSub2(1, i))                         % check if this channel was not rejected in both subjects during preprocessing
+    Rsq = wtc(hboSub1(:,i), hboSub2(:,i), 'mcc', 0);                        % r square - measure for coherence
   
-  % calculate mean activation in frequency band of interest
-  % collaboration condition
-  for j=1:1:length(evtCollaboration)
-    meanCohCollab(j)  = mean(mean(Rsq(pnoi(1):pnoi(2), ...
-                        evtCollaboration(j):evtCollaboration(j) + ...
-                        durCollaboration)));
-  end
+    % calculate mean activation in frequency band of interest
+    % collaboration condition
+    for j=1:1:length(evtCollaboration)
+      meanCohCollab(j)  = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+                          evtCollaboration(j):evtCollaboration(j) + ...
+                          durCollaboration)));
+    end
  
- % individual condition
-  for j=1:1:length(evtIndividual)
-    meanCohIndiv(j)   = mean(mean(Rsq(pnoi(1):pnoi(2), ...
-                        evtIndividual(j):evtIndividual(j) + ...
-                        durIndividual)));
-  end
+    % individual condition
+    for j=1:1:length(evtIndividual)
+      meanCohIndiv(j)   = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+                          evtIndividual(j):evtIndividual(j) + ...
+                          durIndividual)));
+    end
  
-  % baseline
-  for j=1:1:length(evtBaseline)
-    meanCohBase(j)    = mean(mean(Rsq(pnoi(1):pnoi(2), ...
-                        evtBaseline(j):evtBaseline(j) + ...
-                        durBaseline)));
-  end
+    % baseline
+    for j=1:1:length(evtBaseline)
+      meanCohBase(j)    = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+                          evtBaseline(j):evtBaseline(j) + ...
+                          durBaseline)));
+    end
 
-  collaboration  = mean(meanCohCollab);                                     % average mean coherences over trials
-  individual     = mean(meanCohIndiv);
-  baseline       = mean(meanCohBase);
+    collaboration  = mean(meanCohCollab);                                     % average mean coherences over trials
+    individual     = mean(meanCohIndiv);
+    baseline       = mean(meanCohBase);
  
-  CBCI   = collaboration - baseline;                                        % coherence increase between collaboration and baseline
-  IBCI   = individual - baseline;                                           % coherence increase between individual and baseline
-  CICI   = collaboration - individual;                                      % coherence increase between collaboration and individual
+    CBCI   = collaboration - baseline;                                        % coherence increase between collaboration and baseline
+    IBCI   = individual - baseline;                                           % coherence increase between individual and baseline
+    CICI   = collaboration - individual;                                      % coherence increase between collaboration and individual
  
-  coherences(i, 1:6) = [collaboration, individual, baseline, CBCI, IBCI,...
-                        CICI];
+    coherences(i, 1:6) = [collaboration, individual, baseline, CBCI, ...
+                          IBCI, CICI];
+  else
+    coherences(i, :) = NaN;
+  end
 end
 
 % put results into the output data structure

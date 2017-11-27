@@ -107,6 +107,13 @@ data.hbr = squeeze(data.dc(:,2,:));
 
 data.badChannelsCui = CARE_XuCheckDataQuality(data.hbo, data.hbr);          % run quality check on all channels
 
+% reject bad channels, set all values to NaN
+if ~isempty(data.badChannelsCui)
+  fprintf('Reject bad Channels, set all values to NaN');
+  data.hbo(:, data.badChannelsCui) = NaN;
+  data.hbr(:, data.badChannelsCui) = NaN;
+end
+
 data = rmfield(data, 'aux');                                                % remove field aux from data structure
 
 end

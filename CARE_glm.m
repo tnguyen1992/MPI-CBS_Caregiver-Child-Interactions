@@ -9,7 +9,7 @@ function [ data_glm ] = CARE_glm( cfg, data_preproc )
 % where the input data has to be the result from CARE_PREPROCESSING
 %
 % The configuration options are
-%   cfg.eventMarkers = event aarkers extracted from the corresponding *.hdr file (see CARE_EXTRACTEVENTMARKERS)
+%   cfg.eventMarkers = event markers extracted from the corresponding *.hdr file (see CARE_EXTRACTEVENTMARKERS)
 %
 % SEE also CARE_PREPROCESSING, CARE_EXTRACTEVENTMARKERS
 
@@ -82,7 +82,11 @@ function data_out = execGLM(evtMark, s, data_in)
     % conduct generalized linear model regression
     % beta estimates for a generalized linear regression of the responses 
     % in data_in.hbo(:, channel) on the predictors in the sMatrix
-    beta(channel,:) = glmfit(s, data_in.hbo(:, channel));
+    if ~isnan(data_in.hbo(1, channel))                                      % check if channel was not rejected during preprocessing
+      beta(channel,:) = glmfit(s, data_in.hbo(:, channel));
+    else
+      beta(channel,:) = NaN;
+    end
   end
   
   % put results into a structure

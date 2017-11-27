@@ -76,8 +76,8 @@ fprintf('\n');
 % Estimate averaged beta values
 % -------------------------------------------------------------------------
 fprintf('Averaging of beta values over caregivers and over childs...\n\n');
-data.sub1.beta = mean(caregiverBeta, 3);
-data.sub2.beta = mean(childBeta, 3);
+data.sub1.beta = nanmean(caregiverBeta, 3);
+data.sub2.beta = nanmean(childBeta, 3);
 
 data.sub1.eventMarker = eventMarker;
 data.sub1.channel = channel;

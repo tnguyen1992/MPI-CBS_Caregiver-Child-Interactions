@@ -23,12 +23,14 @@ end
 
 pos = find(c == -1);
 if ~isempty(pos)
-    cprintf([1,0.5,0], 'Channels with -1 correlation: %d\n', pos)
+    cprintf([1,0.5,0], ['Xu Cui data quality check: '...
+                        'Channels with -1 correlation: %d \n'], pos);
 end
 
 pos2 = find(c > 0.5);
 if ~isempty(pos2)
-    cprintf([1,0.5,0], 'Channels with > 0.5 correlation: %d\n', pos2)
+    cprintf([1,0.5,0], ['Xu Cui data quality check: '...
+                        'Channels with > 0.5 correlation: %d \n'], pos2);
 end
 
 badChannels = [pos pos2];
