@@ -38,12 +38,14 @@ end
 colCollaboration  = (eventMarkers == 11);
 colIndividual     = (eventMarkers == 12);
 colBaseline       = (eventMarkers == 13);
+colTalk           = (eventMarkers == 14);
 colAll            = colCollaboration | colIndividual | colBaseline;
 
 % define Duration of conditions
 durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
 durIndividual     = round(120 * data_preproc.sub1.fs - 1);                  % duration individual condition: 120 seconds 
 durBaseline       = round(80 * data_preproc.sub1.fs - 1);                   % duration baseline condition: 80 seconds 
+durTalk           = round(240 * data_preproc.sub1.fs - 1);                  % duration talk condition: 240 seconds (currently only used for plotting purpose)     
 
 % determine sample points when events occur (start of condition)
 sMatrix = data_preproc.sub1.s;
@@ -51,6 +53,7 @@ sMatrix = data_preproc.sub1.s;
 evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);
 evtBaseline       = find(sMatrix(:, colBaseline) > 0);
+evtTalk           = find(sMatrix(:, colTalk) > 0);                          % currently only used for plotting purpose (See CARE_easyCohPlot)
 
 % remove unused events
 eventMarkers      = eventMarkers(colAll);
@@ -76,7 +79,7 @@ while (isnan(hboSub1(1, i)) || isnan(hboSub2(1, i)))                        % ch
   end
 end
 if i ~= 0
-  [~,period,~,~,~] = wtc(hboSub1(:,16), hboSub2(:,16), 'mcc', 0); 
+  [~,period,~,~,~] = wtc(hboSub1(:,i), hboSub2(:,i), 'mcc', 0); 
   pnoi(1) = find(period > poi(1), 1, 'first');
   pnoi(2) = find(period > poi(2), 1, 'first');
 else
@@ -153,8 +156,10 @@ data_wtc.cfg.poi              = poi;
 data_wtc.cfg.evtCollaboration = evtCollaboration;
 data_wtc.cfg.evtIndividual    = evtIndividual;
 data_wtc.cfg.evtRest          = evtBaseline;
+data_wtc.cfg.evtTalk          = evtTalk;
 data_wtc.cfg.durCollaboration = durCollaboration;
 data_wtc.cfg.durIndividual    = durIndividual;
 data_wtc.cfg.durRest          = durBaseline;
+data_wtc.cfg.durTalk          = durTalk;
 
 end
