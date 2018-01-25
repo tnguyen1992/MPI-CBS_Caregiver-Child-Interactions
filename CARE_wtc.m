@@ -17,7 +17,7 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % Get and check config options
 % -------------------------------------------------------------------------
 eventMarkers = CARE_getopt(cfg, 'eventMarkers', []);
-poi          = CARE_getopt(cfg, 'poi', [230 100]);
+poi          = CARE_getopt(cfg, 'poi', [23 100]);
 
 if isempty(eventMarkers)
   error('No event markers are specified!');
@@ -60,10 +60,13 @@ eventMarkers      = eventMarkers(colAll);
 sMatrix           = sMatrix(:, colAll);
 
 % -------------------------------------------------------------------------
-% Load hbo data
+% Load hbo data create time vector
 % -------------------------------------------------------------------------
 hboSub1 = data_preproc.sub1.hbo;
 hboSub2 = data_preproc.sub2.hbo;
+
+t = (0:(1/data_preproc.sub1.fs):((size(data_preproc.sub1.hbo, 1) - 1) / ...
+    data_preproc.sub1.fs))';
 
 numOfChan = size(hboSub1, 2);
 
@@ -79,9 +82,11 @@ while (isnan(hboSub1(1, i)) || isnan(hboSub2(1, i)))                        % ch
   end
 end
 if i ~= 0
-  [~,period,~,~,~] = wtc(hboSub1(:,i), hboSub2(:,i), 'mcc', 0); 
+  sigPart1 = [t, hboSub1(:,i)];
+  sigPart2 = [t, hboSub2(:,i)];
+  [~,period,~,~,~] = wtc(sigPart1, sigPart2, 'mcc', 0); 
   pnoi(1) = find(period > poi(1), 1, 'first');
-  pnoi(2) = find(period > poi(2), 1, 'first');
+  pnoi(2) = find(period < poi(2), 1, 'last');
 else
   period = NaN;                                                             % if all channel were rejected, the value period cannot be extimated and will be therefore set to NaN
 end                                                                       
@@ -101,7 +106,9 @@ meanCohBase   = zeros(1, length(evtBaseline));                              % me
 fprintf('Calculation of the wavelet coherence for all channels...\n');
 for i=1:1:numOfChan
   if ~isnan(hboSub1(1, i)) && ~isnan(hboSub2(1, i))                         % check if this channel was not rejected in both subjects during preprocessing
-    Rsq = wtc(hboSub1(:,i), hboSub2(:,i), 'mcc', 0);                        % r square - measure for coherence
+    sigPart1 = [t, hboSub1(:,i)];
+    sigPart2 = [t, hboSub2(:,i)];
+    Rsq = wtc(sigPart1, sigPart2, 'mcc', 0);                                % r square - measure for coherence
   
     % calculate mean activation in frequency band of interest
     % collaboration condition
@@ -149,6 +156,7 @@ data_wtc.paramStrings         = {'Collaboration', 'Individual', ...         % th
 data_wtc.channel              = 1:1:size(hboSub1, 2);                              
 data_wtc.eventMarker          = eventMarkers;
 data_wtc.s                    = sMatrix;
+data_wtc.t                    = t;
 data_wtc.hboSub1              = hboSub1;
 data_wtc.hboSub2              = hboSub2;
 data_wtc.cfg.period           = period;

@@ -52,7 +52,7 @@ for i = numOfPart
   % estimate wavelet coherence
   cfg = [];
   cfg.eventMarkers = eventMarkers;
-  cfg.poi          = [230 1000];
+  cfg.poi          = [23 100];                                              % value in seconds, master thesis settings: [30 136] 
   
   data_wtc = CARE_wtc(cfg, data_preproc);
   
