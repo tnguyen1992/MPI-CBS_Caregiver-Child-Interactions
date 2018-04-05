@@ -26,7 +26,6 @@ end
 
 %% part 2
 % preprocess the raw data
-% export the preprocessed data into a *.mat file
 
 cprintf([0,0.6,0], '<strong>[2] - Data preprocessing</strong>\n');
 fprintf('\n');

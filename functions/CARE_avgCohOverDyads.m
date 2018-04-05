@@ -24,13 +24,13 @@ session   = ft_getopt(cfg, 'session', 1);
 % -------------------------------------------------------------------------
 % Select dyads
 % -------------------------------------------------------------------------
-dyadsList   = dir([path, sprintf('CARE_d*_04_wtc_%03d.mat', session)]);
+dyadsList   = dir([path, sprintf('CARE_d*_05a_wtc_%03d.mat', session)]);
 dyadsList   = struct2cell(dyadsList);
 dyadsList   = dyadsList(1,:);
 numOfDyads  = length(dyadsList);
 
 for i=1:1:numOfDyads
-  listOfDyads(i) = sscanf(dyadsList{i}, ['CARE_d%d_04_wtc_'...
+  listOfDyads(i) = sscanf(dyadsList{i}, ['CARE_d%d_05a_wtc_'...
                                    sprintf('%03d.mat', session)]);          %#ok<AGROW>
 end
 
@@ -56,7 +56,7 @@ numOfDyads = length(listOfDyads);
 coherences = zeros(16, 6, numOfDyads);
 
 for i=1:1:length(listOfDyads)
-  filename = sprintf('CARE_d%02d_04_wtc_%03d.mat', listOfDyads(i), ...
+  filename = sprintf('CARE_d%02d_05a_wtc_%03d.mat', listOfDyads(i), ...
                     session);
   file = strcat(path, filename);
   fprintf('Load %s ...\n', filename);

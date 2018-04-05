@@ -29,54 +29,15 @@ if ~exist('numOfPart', 'var')                                               % es
 end
 
 %% part 4
-% estimate wavelet coherence for dyads
-% export the estimated data into a *.mat file
+% estimate cross-correlation between the channels of caregiver and child
 
-cprintf([0,0.6,0], '<strong>[4] - Calculation of wavelet coherence</strong>\n');
+cprintf([0,0.6,0], '<strong>[4] - Estimation of cross-correlation</strong>\n');
 fprintf('\n');
 
 for i = numOfPart
-  % load preprocessed data
   fprintf('<strong>Dyad %d</strong>\n', i);
-  
-  cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '02_preproc/');
-  cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
-  cfg.sessionStr  = sessionStr;
-  
-  fprintf('Load preprocessed data...\n');
-  CARE_loadData( cfg );
-  
-  % extract markers
-  cfg = [];
-  cfg.dyad    = sprintf('CARE_%02d', i);
-  cfg.srcPath = srcPath;
-  
-  eventMarkers = CARE_extractEventMarkers( cfg );
-  
-  % estimate wavelet coherence
-  cfg = [];
-  cfg.eventMarkers = eventMarkers;
-  cfg.poi          = [23 100];                                              % value in seconds, master thesis settings: [30 136] 
-  
-  data_wtc = CARE_wtc(cfg, data_preproc);
-  
-  % save wavelet coherence data
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '04_wtc/');
-  cfg.filename    = sprintf('CARE_d%02d_04_wtc', i);
-  cfg.sessionStr  = sessionStr;
-  
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-
-  fprintf('The wavelet coherence data of dyad %d will be saved in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  CARE_saveData(cfg, 'data_wtc', data_wtc);
-  fprintf('Data stored!\n\n');
-  clear data_wtc data_preproc 
   
 end
 
 %% clear workspace
-clear cfg i file_path eventMarkers
+clear cfg i file_path

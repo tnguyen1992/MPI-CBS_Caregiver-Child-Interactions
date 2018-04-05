@@ -30,7 +30,6 @@ end
 
 %% part 3
 % conduct a generalized linear model regression for all channels of the single objects
-% export the estimated beta coefficients into a *.mat file
 
 cprintf([0,0.6,0], '<strong>[3] - Conduct a generalized linear model regression with single subjects</strong>\n');
 fprintf('\n');

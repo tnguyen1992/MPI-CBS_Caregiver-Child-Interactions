@@ -1,42 +1,81 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
-  cfg           = [];
-  cfg.subFolder = '03_glm/';
-  cfg.filename  = 'CARE_d02_03_glm';
-  sessionStr    = sprintf('%03d', CARE_getSessionNum( cfg ));               % estimate current session number
+  cfg         = [];
+  cfg.subFolder = '02_preproc/';
+  cfg.filename  = 'CARE_d02_02_preproc';
+  sessionStr  = sprintf('%03d', CARE_getSessionNum( cfg ));                 % estimate current session number
+end
+
+if ~exist('srcPath', 'var')
+  srcPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';         % source path to raw data
 end
 
 if ~exist('desPath', 'var')
   desPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';   % destination path for processed data  
 end
 
-%% part 5
-% Averaging of beta values of glm regression over caregivers and childs
+if ~exist('numOfPart', 'var')                                               % estimate number of participants in preprocessed data folder
+  sourceList    = dir([strcat(desPath, '02_preproc/'), ...
+                       strcat('*02_preproc_', sessionStr, '.mat')]);
+  sourceList    = struct2cell(sourceList);
+  sourceList    = sourceList(1,:);
+  numOfSources  = length(sourceList);
+  numOfPart     = zeros(1, numOfSources);
 
-cprintf([0,0.6,0], '<strong>[5] - Averaging beta values over dyads</strong>\n');
+  for i=1:1:numOfSources
+    numOfPart(i)  = sscanf(sourceList{i}, ...
+                    strcat('CARE_d%d_02_preproc_', sessionStr, '.mat'));
+  end
+end
+
+%% part 5
+% estimate wavelet coherence for dyads
+
+cprintf([0,0.6,0], '<strong>[5] - Calculation of wavelet coherence</strong>\n');
 fprintf('\n');
 
-cfg = [];
-cfg.path = strcat(desPath, '03_glm/');
-cfg.session = str2double(sessionStr);
+for i = numOfPart
+  % load preprocessed data
+  fprintf('<strong>Dyad %d</strong>\n', i);
+  
+  cfg             = [];
+  cfg.srcFolder   = strcat(desPath, '02_preproc/');
+  cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
+  cfg.sessionStr  = sessionStr;
+  
+  fprintf('Load preprocessed data...\n');
+  CARE_loadData( cfg );
+  
+  % extract markers
+  cfg = [];
+  cfg.dyad    = sprintf('CARE_%02d', i);
+  cfg.srcPath = srcPath;
+  
+  eventMarkers = CARE_extractEventMarkers( cfg );
+  
+  % estimate wavelet coherence
+  cfg = [];
+  cfg.eventMarkers = eventMarkers;
+  cfg.poi          = [23 100];                                              % value in seconds, master thesis settings: [30 136] 
+  
+  data_wtc = CARE_wtc(cfg, data_preproc);
+  
+  % save wavelet coherence data
+  cfg             = [];
+  cfg.desFolder   = strcat(desPath, '05a_wtc/');
+  cfg.filename    = sprintf('CARE_d%02d_05a_wtc', i);
+  cfg.sessionStr  = sessionStr;
+  
+  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
+                     '.mat');
 
-data_betaod = CARE_avgBetaOverSubjects( cfg );
-
-
-% export the averaged beta values into a *.mat file
-cfg             = [];
-cfg.desFolder   = strcat(desPath, '05_betaod/');
-cfg.filename    = 'CARE_05_betaod';
-cfg.sessionStr  = sessionStr;
-
-file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                  '.mat');
-                
-fprintf('Saving the averaged beta values in:\n'); 
-fprintf('%s ...\n', file_path);
-CARE_saveData(cfg, 'data_betaod', data_betaod);
-fprintf('Data stored!\n\n');
-clear data_betaod
+  fprintf('The wavelet coherence data of dyad %d will be saved in:\n', i); 
+  fprintf('%s ...\n', file_path);
+  CARE_saveData(cfg, 'data_wtc', data_wtc);
+  fprintf('Data stored!\n\n');
+  clear data_wtc data_preproc 
+  
+end
 
 %% clear workspace
-clear cfg file_path
+clear cfg i file_path eventMarkers

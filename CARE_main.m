@@ -54,14 +54,23 @@ end
 if ~exist(strcat(desPath, '03_glm'), 'dir')
   mkdir(strcat(desPath, '03_glm'));
 end
-if ~exist(strcat(desPath, '04_wtc'), 'dir')
-  mkdir(strcat(desPath, '04_wtc'));
+if ~exist(strcat(desPath, '04_xcorr'), 'dir')
+  mkdir(strcat(desPath, '04_xcorr'));
 end
-if ~exist(strcat(desPath, '05_betaod'), 'dir')
-  mkdir(strcat(desPath, '05_betaod'));
+if ~exist(strcat(desPath, '05a_wtc'), 'dir')
+  mkdir(strcat(desPath, '05a_wtc'));
 end
-if ~exist(strcat(desPath, '06_cohod'), 'dir')
-  mkdir(strcat(desPath, '06_cohod'));
+if ~exist(strcat(desPath, '05b_coherence'), 'dir')
+  mkdir(strcat(desPath, '05b_coherence'));
+end
+if ~exist(strcat(desPath, '06a_pwelch'), 'dir')
+  mkdir(strcat(desPath, '06a_pwelch'));
+end
+if ~exist(strcat(desPath, '07a_betaod'), 'dir')
+  mkdir(strcat(desPath, '07a_betaod'));
+end
+if ~exist(strcat(desPath, '07b_wcod'), 'dir')
+  mkdir(strcat(desPath, '07b_wcod'));
 end
 
 clear sessionStr numOfPart part newPaths
@@ -189,10 +198,11 @@ else
     fprintf('[1] - Import/convert raw data\n');
     fprintf('[2] - Data preprocessing\n');
     fprintf('[3] - Conduct a generalized linear model regression with single subjects\n'); 
-    fprintf('[4] - Calculation of wavelet coherence\n');
-    fprintf('[5] - Averaging beta values over dyads\n');
-    fprintf('[6] - Averaging coherences over dyads\n');
-    fprintf('[7] - Quit data processing\n\n');
+    fprintf('[4] - Estimation of cross-correlation\n');
+    fprintf('[5] - Calculation of coherences\n');
+    fprintf('[6] - Power analysis (pWelch)\n');
+    fprintf('[7] - Averaging over dyads\n');
+    fprintf('[8] - Quit data processing\n\n');
     x = input('Option: ');
   
     switch x
@@ -218,6 +228,9 @@ else
         part = 6;
         selection = true;
       case 7
+        part = 7;
+        selection = true;
+      case 8
         fprintf('\nData processing aborted.\n');
         clear selection i x y srcPath desPath gsePath session ...
               sessionList sessionNum numOfSessions sessionStr sdFile
@@ -268,14 +281,24 @@ switch part
     fileNamePost = strcat(tmpPath, 'CARE_d*_03_tvalue_', sessionStr, ...
                           '.mat');
   case 4
-     tmpPath = strcat(desPath, '02_preproc/');
+    tmpPath = strcat(desPath, '02_preproc/');
     fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
                          '.mat');
-    tmpPath = strcat(desPath, '04_wtc/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_04_wtc_', sessionStr, '.mat');
+    tmpPath = strcat(desPath, '04_xcorr/');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_04_xcorr_', sessionStr, '.mat');
   case 5
-    fileNamePre = 0;
+    tmpPath = strcat(desPath, '02_preproc/');
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+                         '.mat');
+    tmpPath = strcat(desPath, '05b_coherence/');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_05b_coherence_', sessionStr, '.mat');
   case 6
+    tmpPath = strcat(desPath, '02_preproc/');
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+                         '.mat');
+    tmpPath = strcat(desPath, '06a_pwelch/');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_06a_pwelch_', sessionStr, '.mat');
+  case 7
     fileNamePre = 0;
   otherwise
     error('Something unexpected happend. part = %d is not defined' ...
@@ -426,16 +449,39 @@ while sessionStatus == true
       while selection == false
         fprintf('<strong>Continue data processing with:</strong>\n');
         fprintf('<strong>[3] - Conduct a generalized linear model regression with single subjects?</strong>\n');
-        x = input('\nSelect [y/n]: ','s');
-        if strcmp('y', x)
-          selection = true;
-          sessionStatus = true;
-          sessionPart = 3;
-        elseif strcmp('n', x)
-          selection = true;
-          sessionStatus = false;
-        else
-          selection = false;
+        fprintf('<strong>[4] - Estimation of cross-correlation?</strong>\n');
+        fprintf('<strong>[5] - Calculation of coherences?</strong>\n');
+        fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
+        fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
+        fprintf('<strong>[8] - Quit data processing?</strong>\n');
+        x = input('\nSelect one of these options: ');
+        switch x
+          case 3
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 3;
+          case 4
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 4;
+          case 5
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 5;
+          case 6
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 6;
+          case 7
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 7;
+          case 8
+            selection = true;
+            sessionStatus = false;
+          otherwise
+            selection = false;
+            cprintf([1,0.5,0], 'Wrong input!\n');
         end
       end
     case 3
@@ -443,17 +489,35 @@ while sessionStatus == true
       selection = false;
       while selection == false
         fprintf('<strong>Continue data processing with:</strong>\n');
-        fprintf('<strong>[4] - Calculation of wavelet coherence?</strong>\n');
-        x = input('\nSelect [y/n]: ','s');
-        if strcmp('y', x)
-          selection = true;
-          sessionStatus = true;
-          sessionPart = 4;
-        elseif strcmp('n', x)
-          selection = true;
-          sessionStatus = false;
-        else
-          selection = false;
+        fprintf('<strong>[4] - Estimation of cross-correlation?</strong>\n');
+        fprintf('<strong>[5] - Calculation of coherences?</strong>\n');
+        fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
+        fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
+        fprintf('<strong>[8] - Quit data processing?</strong>\n');
+        x = input('\nSelect one of these options: ');
+        switch x
+          case 4
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 4;
+          case 5
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 5;
+          case 6
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 6;
+          case 7
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 7;
+          case 8
+            selection = true;
+            sessionStatus = false;
+          otherwise
+            selection = false;
+            cprintf([1,0.5,0], 'Wrong input!\n');
         end
       end
     case 4
@@ -461,17 +525,30 @@ while sessionStatus == true
       selection = false;
       while selection == false
         fprintf('<strong>Continue data processing with:</strong>\n');
-        fprintf('<strong>[5] - Averaging beta values over dyads?</strong>\n');
-        x = input('\nSelect [y/n]: ','s');
-        if strcmp('y', x)
-          selection = true;
-          sessionStatus = true;
-          sessionPart = 5;
-        elseif strcmp('n', x)
-          selection = true;
-          sessionStatus = false;
-        else
-          selection = false;
+        fprintf('<strong>[5] - Calculation of coherences?</strong>\n');
+        fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
+        fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
+        fprintf('<strong>[8] - Quit data processing?</strong>\n');
+        x = input('\nSelect one of these options: ');
+        switch x
+          case 5
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 5;
+          case 6
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 6;
+          case 7
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 7;
+          case 8
+            selection = true;
+            sessionStatus = false;
+          otherwise
+            selection = false;
+            cprintf([1,0.5,0], 'Wrong input!\n');
         end
       end
     case 5
@@ -479,21 +556,47 @@ while sessionStatus == true
       selection = false;
       while selection == false
         fprintf('<strong>Continue data processing with:</strong>\n');
-        fprintf('<strong>[6] - Averaging coherences over dyads?</strong>\n');
+        fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
+        fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
+        fprintf('<strong>[8] - Quit data processing?</strong>\n');
+        x = input('\nSelect one of these options: ');
+        switch x
+          case 6
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 6;
+          case 7
+            selection = true;
+            sessionStatus = true;
+            sessionPart = 7;
+          case 8
+            selection = true;
+            sessionStatus = false;
+          otherwise
+            selection = false;
+            cprintf([1,0.5,0], 'Wrong input!\n');
+        end
+      end
+    case 6
+      CARE_main_6;
+      selection = false;
+      while selection == false
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
           sessionStatus = true;
-          sessionPart = 6;
+          sessionPart = 7;
         elseif strcmp('n', x)
           selection = true;
           sessionStatus = false;
         else
           selection = false;
         end
-      end
-    case 6
-      CARE_main_6;
+      end  
+    case 7
+      CARE_main_7;
       sessionStatus = false;
     otherwise
       sessionStatus = false;
