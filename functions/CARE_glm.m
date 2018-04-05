@@ -67,9 +67,9 @@ sMatrix           = sMatrix(:, colAll);
 % -------------------------------------------------------------------------
 % Adapt the s matrix
 % -------------------------------------------------------------------------
-fprintf('Conduct generalized linear model regression for all channels of subject 1...\n');
+fprintf('<strong>Conduct generalized linear model regression for all channels of subject 1...</strong>\n');
 data_glm.sub1 = execGLM(eventMarkers, sMatrix, data_preproc.sub1);
-fprintf('Conduct generalized linear model regression for all channels of subject 2...\n');
+fprintf('<strong>Conduct generalized linear model regression for all channels of subject 2...</strong>\n');
 data_glm.sub2 = execGLM(eventMarkers, sMatrix, data_preproc.sub2);
 
 end

@@ -75,7 +75,7 @@ fprintf('\n');
 % -------------------------------------------------------------------------
 % Estimate averaged beta values
 % -------------------------------------------------------------------------
-fprintf('Averaging of beta values over caregivers and over childs...\n\n');
+fprintf('<strong>Averaging of beta values over caregivers and over childs...</strong>\n\n');
 data.sub1.beta = nanmean(caregiverBeta, 3);
 data.sub2.beta = nanmean(childBeta, 3);
 

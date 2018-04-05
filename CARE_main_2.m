@@ -24,17 +24,22 @@ if ~exist('numOfPart', 'var')                                               % es
   end
 end
 
-%% preprocess the raw data
+%% part 2
+% preprocess the raw data
 % export the preprocessed data into a *.mat file
 
+cprintf([0,0.6,0], '<strong>[2] - Data preprocessing</strong>\n');
+fprintf('\n');
+
 for i = numOfPart
+  fprintf('<strong>Dyad %d</strong>\n', i);
+  
   % load raw data of subject 1
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '01_raw_nirs/');
   cfg.filename    = sprintf('CARE_d%02da_01_raw_nirs', i);
   cfg.sessionStr  = sessionStr;
   
-  fprintf('Dyad %d\n', i);
   fprintf('Load raw nirs data of subject 1...\n');
   CARE_loadData( cfg );
   

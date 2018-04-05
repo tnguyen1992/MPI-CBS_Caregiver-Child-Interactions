@@ -7,7 +7,11 @@ if ~exist('gsePath', 'var')
   gsePath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/'; % general settings path
 end
 
-%% generate sources/detectors definiton file and save it in gsePath location
+%% part 0
+% generate sources/detectors definiton file and save it in gsePath location
+
+cprintf([0,0.6,0], '<strong>[0] - Build sources/detectors definition</strong>\n');
+fprintf('\n');
 
 cfg = [];
 cfg.dyad    = 'CARE_02';

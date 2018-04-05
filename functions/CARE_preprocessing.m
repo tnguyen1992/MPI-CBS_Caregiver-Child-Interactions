@@ -24,9 +24,9 @@ function [data] = CARE_preprocessing( data )
 % -------------------------------------------------------------------------
 % Preprocessing
 % -------------------------------------------------------------------------
-fprintf('Preproc subject 1...\n');
+fprintf('<strong>Preproc subject 1...</strong>\n');
 data.sub1 = preproc( data.sub1 );
-fprintf('Preproc subject 2...\n');
+fprintf('<strong>Preproc subject 2...</strong>\n');
 data.sub2 = preproc( data.sub2 );
 
 end
@@ -109,7 +109,7 @@ data.badChannelsCui = CARE_XuCheckDataQuality(data.hbo, data.hbr);          % ru
 
 % reject bad channels, set all values to NaN
 if ~isempty(data.badChannelsCui)
-  fprintf('Reject bad Channels, set all values to NaN');
+  fprintf('Reject bad Channels, set all values to NaN\n');
   data.hbo(:, data.badChannelsCui) = NaN;
   data.hbr(:, data.badChannelsCui) = NaN;
 end

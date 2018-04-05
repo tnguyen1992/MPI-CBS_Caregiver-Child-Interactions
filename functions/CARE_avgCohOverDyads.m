@@ -74,7 +74,7 @@ fprintf('\n');
 % -------------------------------------------------------------------------
 % Estimate averaged beta values
 % -------------------------------------------------------------------------
-fprintf('Averaging of coherence values over dyads...\n\n');
+fprintf('<strong>Averaging of coherence values over dyads...</strong>\n\n');
 data.coherences = nanmean(coherences, 3);
 
 data.params = params;

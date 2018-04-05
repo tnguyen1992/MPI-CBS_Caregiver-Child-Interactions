@@ -186,7 +186,7 @@ else
   while selection == false
     fprintf('\nPlease select what you want to do:\n');
     fprintf('[0] - Build sources/detectors definition\n');
-    fprintf('[1] - Import/Convert raw data\n');
+    fprintf('[1] - Import/convert raw data\n');
     fprintf('[2] - Data preprocessing\n');
     fprintf('[3] - Conduct a generalized linear model regression with single subjects\n'); 
     fprintf('[4] - Calculation of wavelet coherence\n');
@@ -388,8 +388,8 @@ while sessionStatus == true
       CARE_main_0;
       selection = false;
       while selection == false
-        fprintf('Continue data processing with:\n');
-        fprintf('[1] - Import/Convert raw data\n');
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[1] - Import/Convert raw data?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
@@ -406,8 +406,8 @@ while sessionStatus == true
       CARE_main_1;
       selection = false;
       while selection == false
-        fprintf('Continue data processing with:\n');
-        fprintf('[2] - Data preprocessing\n');
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[2] - Data preprocessing?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
@@ -424,8 +424,8 @@ while sessionStatus == true
       CARE_main_2;
       selection = false;
       while selection == false
-        fprintf('Continue data processing with:\n');
-        fprintf('[3] - Conduct a generalized linear model regression with single subjects\n');
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[3] - Conduct a generalized linear model regression with single subjects?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
@@ -442,8 +442,8 @@ while sessionStatus == true
       CARE_main_3;
       selection = false;
       while selection == false
-        fprintf('Continue data processing with:\n');
-        fprintf('[4] - Calculation of wavelet coherence\n');
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[4] - Calculation of wavelet coherence?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
@@ -460,8 +460,8 @@ while sessionStatus == true
       CARE_main_4;
       selection = false;
       while selection == false
-        fprintf('Continue data processing with:\n');
-        fprintf('[5] - Averaging beta values over dyads\n');
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[5] - Averaging beta values over dyads?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
@@ -478,8 +478,8 @@ while sessionStatus == true
       CARE_main_5;
       selection = false;
       while selection == false
-        fprintf('Continue data processing with:\n');
-        fprintf('[6] - Averaging coherences over dyads\n');
+        fprintf('<strong>Continue data processing with:</strong>\n');
+        fprintf('<strong>[6] - Averaging coherences over dyads?</strong>\n');
         x = input('\nSelect [y/n]: ','s');
         if strcmp('y', x)
           selection = true;
@@ -501,8 +501,8 @@ while sessionStatus == true
   fprintf('\n');
 end
 
-fprintf('Data processing finished.\n');
-fprintf('Session will be closed.\n');
+fprintf('<strong>Data processing finished.</strong>\n');
+fprintf('<strong>Session will be closed.</strong>\n');
 
 clear sessionStr numOfPart srcPath desPath gsePath sessionPart ...
       sessionStatus selection x

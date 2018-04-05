@@ -10,8 +10,11 @@ if ~exist('desPath', 'var')
   desPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';   % destination path for processed data  
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Averaging of coherence values over dyads
+%% part 6
+% Averaging of coherence values over dyads
+
+cprintf([0,0.6,0], '<strong>[6] - Averaging coherences over dyads</strong>\n');
+fprintf('\n');
 
 cfg = [];
 cfg.path = strcat(desPath, '04_wtc/');

@@ -10,8 +10,11 @@ if ~exist('desPath', 'var')
   desPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';   % destination path for processed data  
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Averaging of beta values of glm regression over caregivers and childs
+%% part 5
+% Averaging of beta values of glm regression over caregivers and childs
+
+cprintf([0,0.6,0], '<strong>[5] - Averaging beta values over dyads</strong>\n');
+fprintf('\n');
 
 cfg = [];
 cfg.path = strcat(desPath, '03_glm/');

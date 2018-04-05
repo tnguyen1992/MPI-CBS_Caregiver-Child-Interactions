@@ -103,7 +103,7 @@ meanCohBase   = zeros(1, length(evtBaseline));                              % me
 % Calculate Coherence increase between conditions for every channel of the 
 % dyad
 % -------------------------------------------------------------------------
-fprintf('Calculation of the wavelet coherence for all channels...\n');
+fprintf('<strong>Calculation of the wavelet coherence for all channels...</strong>\n');
 for i=1:1:numOfChan
   if ~isnan(hboSub1(1, i)) && ~isnan(hboSub2(1, i))                         % check if this channel was not rejected in both subjects during preprocessing
     sigPart1 = [t, hboSub1(:,i)];

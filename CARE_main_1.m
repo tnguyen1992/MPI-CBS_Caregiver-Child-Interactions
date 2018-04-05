@@ -28,10 +28,14 @@ if ~exist('numOfPart', 'var')                                               % es
   end
 end
 
-%% import data
-%  If no *.nirs file is existent, NIRx data will be imported, converted 
-%  into a homer2 compatible format and exported into an *.nirs file.
-%  Otherwise the *.nirs file will simply be copied to 'desPath'/01_raw_nirs
+%% part 1
+% import data
+% If no *.nirs file is existent, NIRx data will be imported, converted 
+% into a homer2 compatible format and exported into an *.nirs file.
+% Otherwise the *.nirs file will simply be copied to 'desPath'/01_raw_nirs
+
+cprintf([0,0.6,0], '<strong>[1] - Import/convert raw data</strong>\n');
+fprintf('\n');
 
 for i = numOfPart
   srcFolder   = strcat(srcPath, sprintf('CARE_%02d/', i));
@@ -44,12 +48,12 @@ for i = numOfPart
   if exist(fileSub1, 'file') && exist(fileSub1, 'file')
     fileDesSub1 = strcat(desFolder, sprintf('CARE_d%02da_01_raw_nirs_', ...
                          i), sessionStr, '.nirs');
-    fprintf('Copying NIRS data for dyad %d, subject 1...\n', i);
+    fprintf('<strong>Copying NIRS data for dyad %d, subject 1...</strong>\n', i);
     copyfile(fileSub1, fileDesSub1);
     fprintf('Data copied!\n\n');
     fileDesSub2 = strcat(desFolder, sprintf('CARE_d%02db_01_raw_nirs_', ...
                          i), sessionStr, '.nirs');
-    fprintf('Copying NIRS data for dyad %d, subject 2...\n', i);
+    fprintf('<strong>Copying NIRS data for dyad %d, subject 2...</strong>\n', i);
     copyfile(fileSub2, fileDesSub2);
     fprintf('Data copied!\n\n');
   else

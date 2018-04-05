@@ -28,17 +28,22 @@ if ~exist('numOfPart', 'var')                                               % es
   end
 end
 
-%% conduct a generalized linear model regression for all channels of the single objects
+%% part 3
+% conduct a generalized linear model regression for all channels of the single objects
 % export the estimated beta coefficients into a *.mat file
 
+cprintf([0,0.6,0], '<strong>[3] - Conduct a generalized linear model regression with single subjects</strong>\n');
+fprintf('\n');
+
 for i = numOfPart
+  fprintf('<strong>Dyad %d</strong>\n', i);
+  
   % load preprocessed data
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '02_preproc/');
   cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
   cfg.sessionStr  = sessionStr;
   
-  fprintf('Dyad %d\n', i);
   fprintf('Load preprocessed data...\n');
   CARE_loadData( cfg );
   

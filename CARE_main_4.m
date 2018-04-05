@@ -28,17 +28,22 @@ if ~exist('numOfPart', 'var')                                               % es
   end
 end
 
-%% estimate wavelet coherence for dyads
+%% part 4
+% estimate wavelet coherence for dyads
 % export the estimated data into a *.mat file
+
+cprintf([0,0.6,0], '<strong>[4] - Calculation of wavelet coherence</strong>\n');
+fprintf('\n');
 
 for i = numOfPart
   % load preprocessed data
+  fprintf('<strong>Dyad %d</strong>\n', i);
+  
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '02_preproc/');
   cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
   cfg.sessionStr  = sessionStr;
   
-  fprintf('Dyad %d\n', i);
   fprintf('Load preprocessed data...\n');
   CARE_loadData( cfg );
   
