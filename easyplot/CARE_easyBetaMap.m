@@ -20,7 +20,10 @@ function CARE_easyBetaMap( cfg, data )
 subject     = ft_getopt(cfg, 'subject', 1);
 condition   = ft_getopt(cfg, 'condition', 13);
 
-if subject < 1 || subject > 2                                                  % check cfg.subject definition
+filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
+addpath(sprintf('%s/../utilities', filepath));
+
+if subject < 1 || subject > 2                                               % check cfg.subject definition
   error('cfg.subject has to be 1 or 2');
 end
 

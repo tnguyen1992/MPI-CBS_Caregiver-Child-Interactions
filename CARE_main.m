@@ -1,8 +1,11 @@
-fprintf('------------------------------------------------\n');
-fprintf('<strong>Caregiver child interactions project - data processing</strong>\n');
-fprintf('Version: 0.1\n');
-fprintf('Copyright (C) 2017, Daniel Matthes, Quynh Trinh Nguyen, MPI CBS\n');
-fprintf('------------------------------------------------\n');
+clc;
+CARE_init;
+
+cprintf([0,0.6,0], '<strong>--------------------------------------------------------------------</strong>\n');
+cprintf([0,0.6,0], '<strong>Caregiver child interactions project - data processing</strong>\n');
+cprintf([0,0.6,0], '<strong>Version: 0.1</strong>\n');
+cprintf([0,0.6,0], 'Copyright (C) 2017-2018, Daniel Matthes, Quynh Trinh Nguyen, MPI CBS\n');
+cprintf([0,0.6,0], '<strong>--------------------------------------------------------------------</strong>\n');
 
 % -------------------------------------------------------------------------
 % Path settings
