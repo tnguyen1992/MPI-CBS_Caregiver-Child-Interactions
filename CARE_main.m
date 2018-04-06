@@ -48,8 +48,11 @@ end
 if ~exist(strcat(desPath, '01_raw_nirs'), 'dir')
   mkdir(strcat(desPath, '01_raw_nirs'));
 end
-if ~exist(strcat(desPath, '02_preproc'), 'dir')
-  mkdir(strcat(desPath, '02_preproc'));
+if ~exist(strcat(desPath, '02a_preproc'), 'dir')
+  mkdir(strcat(desPath, '02a_preproc'));
+end
+if ~exist(strcat(desPath, '02b_trial'), 'dir')
+  mkdir(strcat(desPath, '02b_trial'));
 end
 if ~exist(strcat(desPath, '03_glm'), 'dir')
   mkdir(strcat(desPath, '03_glm'));
@@ -270,31 +273,31 @@ switch part
     tmpPath = strcat(desPath, '01_raw_nirs/');
     fileNamePre = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
                          '.nirs');
-    tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+    tmpPath = strcat(desPath, '02b_trial/');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
                           '.mat');
   case 3
-    tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+    tmpPath = strcat(desPath, '02a_preproc/');
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02a_preproc_', sessionStr, ...
                          '.mat');
-    tmpPath = strcat(desPath, '03_tvalue/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_03_tvalue_', sessionStr, ...
+    tmpPath = strcat(desPath, '03_glm/');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_03_glm_', sessionStr, ...
                           '.mat');
   case 4
-    tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+    tmpPath = strcat(desPath, '02b_trial/');
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
                          '.mat');
     tmpPath = strcat(desPath, '04_xcorr/');
     fileNamePost = strcat(tmpPath, 'CARE_d*_04_xcorr_', sessionStr, '.mat');
   case 5
-    tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+    tmpPath = strcat(desPath, '02a_preproc/');
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02a_preproc_', sessionStr, ...
                          '.mat');
     tmpPath = strcat(desPath, '05b_coherence/');
     fileNamePost = strcat(tmpPath, 'CARE_d*_05b_coherence_', sessionStr, '.mat');
   case 6
-    tmpPath = strcat(desPath, '02_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02_preproc_', sessionStr, ...
+    tmpPath = strcat(desPath, '02b_trial/');
+    fileNamePre = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
                          '.mat');
     tmpPath = strcat(desPath, '06a_pwelch/');
     fileNamePost = strcat(tmpPath, 'CARE_d*_06a_pwelch_', sessionStr, '.mat');

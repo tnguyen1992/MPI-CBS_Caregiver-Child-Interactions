@@ -1,39 +1,23 @@
-function [ data_glm ] = CARE_glm( cfg, data_preproc )
+function [ data_glm ] = CARE_glm( data_preproc )
 % CARE_GLM conducts a generalized linear model regression on the induvidual 
 % subjects of a specific dyad for every channel and returns a structure
 % including the calculated coefficients
 %
 % Use as
-%   [ data_glm ] = CARE_glm( cfg, data_preproc )
+%   [ data_glm ] = CARE_glm( data_preproc )
 %
 % where the input data has to be the result from CARE_PREPROCESSING
 %
-% The configuration options are
-%   cfg.eventMarkers = event markers extracted from the corresponding *.hdr file (see CARE_EXTRACTEVENTMARKERS)
-%
-% SEE also CARE_PREPROCESSING, CARE_EXTRACTEVENTMARKERS
+% SEE also CARE_PREPROCESSING
 
-% Copyright (C) 2017, Daniel Matthes, MPI CBS
-
-% -------------------------------------------------------------------------
-% Get and check config options
-% -------------------------------------------------------------------------
-eventMarkers = CARE_getopt(cfg, 'eventMarkers', []);
-
-if isempty(eventMarkers)
-  error('No event markers are specified!');
-end
-
-if size(eventMarkers, 1) ~= size(data_preproc.sub1.s, 2)
-  error('Mismatch: Lenght of eventMarkers and number of columns in data_preproc.s is not similar.');
-end
+% Copyright (C) 2017-2018, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % General definitions
 % -------------------------------------------------------------------------
-colCollaboration  = (eventMarkers == 11);
-colIndividual     = (eventMarkers == 12);
-colBaseline       = (eventMarkers == 13);
+colCollaboration  = (data_preproc.sub1.eventMarkers == 11);
+colIndividual     = (data_preproc.sub1.eventMarkers == 12);
+colBaseline       = (data_preproc.sub1.eventMarkers == 13);
 colAll            = colCollaboration | colIndividual | colBaseline;
 
 durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
@@ -61,7 +45,7 @@ for i = evtBaseline'
   sMatrix(i:i+durBaseline, colBaseline) = 1;
 end
 
-eventMarkers      = eventMarkers(colAll);
+eventMarkers      = data_preproc.sub1.eventMarkers(colAll);
 sMatrix           = sMatrix(:, colAll);
 
 % -------------------------------------------------------------------------
@@ -90,12 +74,12 @@ function data_out = execGLM(evtMark, s, data_in)
   end
   
   % put results into a structure
-  data_out.eventMarker = evtMark;
-  data_out.s           = s;
-  data_out.hbo         = data_in.hbo;
-  data_out.time        = (1:1:size(data_in.hbo, 1)) / data_in.fs;
-  data_out.fsample     = data_in.fs;
-  data_out.channel     = 1:1:size(data_in.hbo, 2);
-  data_out.beta        = beta(:, 2:end);                                    % for the existing conditions only the columns 2:end are relevant  
+  data_out.eventMarkers = evtMark;
+  data_out.s            = s;
+  data_out.hbo          = data_in.hbo;
+  data_out.time         = (1:1:size(data_in.hbo, 1)) / data_in.fs;
+  data_out.fsample      = data_in.fs;
+  data_out.channel      = 1:1:size(data_in.hbo, 2);
+  data_out.beta         = beta(:, 2:end);                                    % for the existing conditions only the columns 2:end are relevant  
 end
 

@@ -63,7 +63,7 @@ eM2 = getEvtMark( Sub2_hdrFile, dyadNum );
 if isequal(eM1, eM2)
   eventMarkers = eM1;
 else
-  error('Error: The Markers of both Subjects of dyad %s are similar', dyad);
+  error('Error: The Markers of both Subjects of dyad %s are not similar', dyad);
 end
 
 end

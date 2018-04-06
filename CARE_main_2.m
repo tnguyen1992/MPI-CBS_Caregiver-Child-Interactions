@@ -33,6 +33,14 @@ fprintf('\n');
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n', i);
   
+  % extract event markers
+  cfg = [];
+  cfg.dyad    = sprintf('CARE_%02d', i);
+  cfg.srcPath = srcPath;
+  
+  fprintf('Extract event markers from hdr file...\n');
+  eventMarkers = CARE_extractEventMarkers( cfg );
+  
   % load raw data of subject 1
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '01_raw_nirs/');
@@ -42,11 +50,16 @@ for i = numOfPart
   fprintf('Load raw nirs data of subject 1...\n');
   CARE_loadData( cfg );
   
-  data_raw.sub1.SD  = SD;
-  data_raw.sub1.d   = d;
-  data_raw.sub1.s   = s;
-  data_raw.sub1.aux = aux;
-  data_raw.sub1.t   = t;
+  if ~isequal(length(eventMarkers), size(s, 2))
+    error('Loaded event markers and raw data of subject 1 doesn''t match!');
+  end
+  
+  data_raw.sub1.SD            = SD;
+  data_raw.sub1.d             = d;
+  data_raw.sub1.s             = s;
+  data_raw.sub1.aux           = aux;
+  data_raw.sub1.t             = t;
+  data_raw.sub1.eventMarkers  = eventMarkers;
   
   clear SD d s aux t
   
@@ -57,21 +70,26 @@ for i = numOfPart
   fprintf('Load raw nirs data of subject 2...\n');
   CARE_loadData( cfg );
   
-  data_raw.sub2.SD  = SD;
-  data_raw.sub2.d   = d;
-  data_raw.sub2.s   = s;
-  data_raw.sub2.aux = aux;
-  data_raw.sub2.t   = t;
+  if ~isequal(length(eventMarkers), size(s, 2))
+    error('Loaded event markers and raw data of subject 2 doesn''t match!');
+  end
   
-  clear SD d s aux t
+  data_raw.sub2.SD            = SD;
+  data_raw.sub2.d             = d;
+  data_raw.sub2.s             = s;
+  data_raw.sub2.aux           = aux;
+  data_raw.sub2.t             = t;
+  data_raw.sub2.eventMarkers  = eventMarkers;
   
-  % preprocess raw data of poth subjects
+  clear SD d s aux t eventMarkers
+  
+  % preprocess raw data of both subjects
   data_preproc = CARE_preprocessing(data_raw);
   
   % save preprocessed data
   cfg             = [];
-  cfg.desFolder   = strcat(desPath, '02_preproc/');
-  cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
+  cfg.desFolder   = strcat(desPath, '02a_preproc/');
+  cfg.filename    = sprintf('CARE_d%02d_02a_preproc', i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
@@ -81,7 +99,25 @@ for i = numOfPart
   fprintf('%s ...\n', file_path);
   CARE_saveData(cfg, 'data_preproc', data_preproc);
   fprintf('Data stored!\n\n');
-  clear data_preproc data_raw  
+  clear data_raw
+  
+  % extract data of conditions from continuous data stream
+  data_trial = CARE_getTrl(data_preproc);
+  
+  % save trial-based data
+  cfg             = [];
+  cfg.desFolder   = strcat(desPath, '02b_trial/');
+  cfg.filename    = sprintf('CARE_d%02d_02b_trial', i);
+  cfg.sessionStr  = sessionStr;
+  
+  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
+                     '.mat');
+
+  fprintf('The extracted trials of dyad %d will be saved in:\n', i); 
+  fprintf('%s ...\n', file_path);
+  CARE_saveData(cfg, 'data_trial', data_trial);
+  fprintf('Data stored!\n\n');
+  clear data_preproc data_trial  
   
 end
 

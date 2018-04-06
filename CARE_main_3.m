@@ -1,8 +1,8 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
   cfg         = [];
-  cfg.subFolder = '02_preproc/';
-  cfg.filename  = 'CARE_d02_02_preproc';
+  cfg.subFolder = '02a_preproc/';
+  cfg.filename  = 'CARE_d02_02a_preproc';
   sessionStr  = sprintf('%03d', CARE_getSessionNum( cfg ));                 % estimate current session number
 end
 
@@ -15,8 +15,8 @@ if ~exist('desPath', 'var')
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in preprocessed data folder
-  sourceList    = dir([strcat(desPath, '02_preproc/'), ...
-                       strcat('*02_preproc_', sessionStr, '.mat')]);
+  sourceList    = dir([strcat(desPath, '02a_preproc/'), ...
+                       strcat('*02a_preproc_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
   sourceList    = sourceList(1,:);
   numOfSources  = length(sourceList);
@@ -24,7 +24,7 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('CARE_d%d_02_preproc_', sessionStr, '.mat'));
+                    strcat('CARE_d%d_02a_preproc_', sessionStr, '.mat'));
   end
 end
 
@@ -39,25 +39,15 @@ for i = numOfPart
   
   % load preprocessed data
   cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '02_preproc/');
-  cfg.filename    = sprintf('CARE_d%02d_02_preproc', i);
+  cfg.srcFolder   = strcat(desPath, '02a_preproc/');
+  cfg.filename    = sprintf('CARE_d%02d_02a_preproc', i);
   cfg.sessionStr  = sessionStr;
   
   fprintf('Load preprocessed data...\n');
   CARE_loadData( cfg );
   
-  % extract markers
-  cfg = [];
-  cfg.dyad    = sprintf('CARE_%02d', i);
-  cfg.srcPath = srcPath;
-  
-  eventMarkers = CARE_extractEventMarkers( cfg );
-  
   % conduct the generalized linear model regression
-  cfg = [];
-  cfg.eventMarkers = eventMarkers;
-  
-  data_glm = CARE_glm(cfg, data_preproc);
+  data_glm = CARE_glm(data_preproc);
   
   % save beta values of glm regression
   cfg             = [];
@@ -77,4 +67,4 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg i file_path eventMarkers
+clear cfg i file_path

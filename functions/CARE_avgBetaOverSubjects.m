@@ -65,7 +65,7 @@ for i=1:1:length(listOfDyads)
   caregiverBeta(:,:,i) = data_glm.sub1.beta;
   childBeta(:,:,i) = data_glm.sub2.beta;
   if i == 1
-    eventMarker = data_glm.sub1.eventMarker;
+    eventMarkers = data_glm.sub1.eventMarkers;
     channel = data_glm.sub1.channel;
   end
   clear data_glm
@@ -79,9 +79,9 @@ fprintf('<strong>Averaging of beta values over caregivers and over childs...</st
 data.sub1.beta = nanmean(caregiverBeta, 3);
 data.sub2.beta = nanmean(childBeta, 3);
 
-data.sub1.eventMarker = eventMarker;
+data.sub1.eventMarkers = eventMarkers;
 data.sub1.channel = channel;
-data.sub2.eventMarker = eventMarker;
+data.sub2.eventMarkers = eventMarkers;
 data.sub2.channel = channel;
 data.dyads = listOfDyads;
 

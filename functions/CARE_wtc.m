@@ -8,24 +8,14 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % where the input data has to be the result from CARE_PREPROCESSING
 %
 % The configuration options are
-%   cfg.eventMarkers = event aarkers extracted from the corresponding *.hdr file (see CARE_EXTRACTEVENTMARKERS)
 %   cfg.poi          = period of interest (default: [230 1000])
 %
-% SEE also CARE_PREPROCESSING, CARE_EXTRACTEVENTMARKERS, WTC
+% SEE also CARE_PREPROCESSING, WTC
 
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-eventMarkers = CARE_getopt(cfg, 'eventMarkers', []);
 poi          = CARE_getopt(cfg, 'poi', [23 100]);
-
-if isempty(eventMarkers)
-  error('No event markers are specified!');
-end
-
-if size(eventMarkers, 1) ~= size(data_preproc.sub1.s, 2)
-  error('Mismatch: Lenght of eventMarkers and number of columns in data_preproc.s is not similar.');
-end
 
 if ~isequal(length(poi), 2)
   error('cfg.poi has wrong size. Define cfg.poi = [begin end]');  
@@ -35,10 +25,10 @@ end
 % General definitions
 % Determine events
 % -------------------------------------------------------------------------
-colCollaboration  = (eventMarkers == 11);
-colIndividual     = (eventMarkers == 12);
-colBaseline       = (eventMarkers == 13);
-colTalk           = (eventMarkers == 14);
+colCollaboration  = (data_preproc.sub1.eventMarkers == 11);
+colIndividual     = (data_preproc.sub1.eventMarkers == 12);
+colBaseline       = (data_preproc.sub1.eventMarkers == 13);
+colTalk           = (data_preproc.sub1.eventMarkers == 14);
 colAll            = colCollaboration | colIndividual | colBaseline;
 
 % define Duration of conditions
@@ -56,7 +46,7 @@ evtBaseline       = find(sMatrix(:, colBaseline) > 0);
 evtTalk           = find(sMatrix(:, colTalk) > 0);                          % currently only used for plotting purpose (See CARE_easyCohPlot)
 
 % remove unused events
-eventMarkers      = eventMarkers(colAll);
+eventMarkers      = data_preproc.sub1.eventMarkers(colAll);
 sMatrix           = sMatrix(:, colAll);
 
 % -------------------------------------------------------------------------
@@ -154,7 +144,7 @@ data_wtc.paramStrings         = {'Collaboration', 'Individual', ...         % th
                                  'Baseline', 'Collab-Base', ...
                                  'Indiv-Base', 'Collab-Indiv'};
 data_wtc.channel              = 1:1:size(hboSub1, 2);                              
-data_wtc.eventMarker          = eventMarkers;
+data_wtc.eventMarkers         = eventMarkers;
 data_wtc.s                    = sMatrix;
 data_wtc.t                    = t;
 data_wtc.hboSub1              = hboSub1;

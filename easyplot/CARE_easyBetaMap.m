@@ -34,10 +34,10 @@ elseif subject == 2
 end
 
 condition    = CARE_checkCondition( condition );                            % check cfg.condition definition
-if ~any(ismember(data.eventMarker, condition))
+if ~any(ismember(data.eventMarkers, condition))
   error('The selected dataset contains no parameter %d.', condition);
 else
-  column = find(ismember(data.eventMarker, condition));
+  column = find(ismember(data.eventMarkers, condition));
 end
 
 % -------------------------------------------------------------------------
