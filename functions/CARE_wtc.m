@@ -1,6 +1,6 @@
 function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
-% CARE_WTC estimates the wavelet coherence between two subjects of one
-% dyad.
+% CARE_WTC estimates the wavelet transform coherence between two subjects 
+% of one dyad. The coherence is computed using the analytic Morlet wavelet.
 %
 % Use as
 %   [ data_wtc ] = CARE_wtc( cfg, data_preproc )
@@ -8,14 +8,16 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % where the input data has to be the result from CARE_PREPROCESSING
 %
 % The configuration options are
-%   cfg.poi          = period of interest (default: [230 1000])
+%   cfg.poi          = period of interest in seconds (default: [23 100])
 %
 % SEE also CARE_PREPROCESSING, WTC
+
+% Copyright (C) 2017-2018, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-poi          = CARE_getopt(cfg, 'poi', [23 100]);
+poi = CARE_getopt(cfg, 'poi', [23 100]);
 
 if ~isequal(length(poi), 2)
   error('cfg.poi has wrong size. Define cfg.poi = [begin end]');  
@@ -93,7 +95,7 @@ meanCohBase   = zeros(1, length(evtBaseline));                              % me
 % Calculate Coherence increase between conditions for every channel of the 
 % dyad
 % -------------------------------------------------------------------------
-fprintf('<strong>Calculation of the wavelet coherence for all channels...</strong>\n');
+fprintf('<strong>Estimation of the wavelet transform coherence for all channels...</strong>\n');
 for i=1:1:numOfChan
   if ~isnan(hboSub1(1, i)) && ~isnan(hboSub2(1, i))                         % check if this channel was not rejected in both subjects during preprocessing
     sigPart1 = [t, hboSub1(:,i)];

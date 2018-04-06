@@ -29,13 +29,18 @@ if ~exist('numOfPart', 'var')                                               % es
 end
 
 %% part 5
-% estimate wavelet coherence for dyads
+% 1. Estimation of a wavelet transform coherence. Wavelet coherence is 
+%    useful for analyzing nonstationary signals. The coherence is computed 
+%    using the analytic Morlet wavelet.  
+% 2. Estimation of a magnitude-squared coherence using Welch’s overlapped 
+%    averaged periodogram method.
 
-cprintf([0,0.6,0], '<strong>[5] - Calculation of wavelet coherence</strong>\n');
+cprintf([0,0.6,0], '<strong>[5] - Calculation of coherence using different approaches</strong>\n');
 fprintf('\n');
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% wavelet transform coherence
 for i = numOfPart
-  % load preprocessed data
   fprintf('<strong>Dyad %d</strong>\n', i);
   
   cfg             = [];
@@ -43,12 +48,13 @@ for i = numOfPart
   cfg.filename    = sprintf('CARE_d%02d_02a_preproc', i);
   cfg.sessionStr  = sessionStr;
   
+  % load continuous preprocessed data
   fprintf('Load preprocessed data...\n');
   CARE_loadData( cfg );
   
   % estimate wavelet coherence
   cfg = [];
-  cfg.poi          = [23 100];                                              % value in seconds, master thesis settings: [30 136] 
+  cfg.poi          = [23 100];                                              % period of interest in seconds, master thesis settings: [30 136] 
   
   data_wtc = CARE_wtc(cfg, data_preproc);
   
@@ -61,7 +67,7 @@ for i = numOfPart
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
 
-  fprintf('The wavelet coherence data of dyad %d will be saved in:\n', i); 
+  fprintf('The wavelet transform coherence data of dyad %d will be saved in:\n', i); 
   fprintf('%s ...\n', file_path);
   CARE_saveData(cfg, 'data_wtc', data_wtc);
   fprintf('Data stored!\n\n');
@@ -69,5 +75,42 @@ for i = numOfPart
   
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% magnitude-squared coherence
+for i = numOfPart
+  fprintf('<strong>Dyad %d</strong>\n', i);
+  
+  cfg             = [];
+  cfg.srcFolder   = strcat(desPath, '02b_trial/');
+  cfg.filename    = sprintf('CARE_d%02d_02b_trial', i);
+  cfg.sessionStr  = sessionStr;
+  
+  % load trial-based preprocessed data
+  fprintf('Load trial-based preprocessed data...\n');
+  CARE_loadData( cfg );
+  
+  % estimate wavelet coherence
+  cfg = [];
+  cfg.poi          = [23 100];                                              % period of interest in seconds
+  
+  data_msc = CARE_msc(cfg, data_trial);
+  
+  % save wavelet coherence data
+  cfg             = [];
+  cfg.desFolder   = strcat(desPath, '05b_msc/');
+  cfg.filename    = sprintf('CARE_d%02d_05b_msc', i);
+  cfg.sessionStr  = sessionStr;
+  
+  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
+                     '.mat');
+
+  fprintf('The magnitude-squared coherence data of dyad %d will be saved in:\n', i); 
+  fprintf('%s ...\n', file_path);
+  CARE_saveData(cfg, 'data_msc', data_msc);
+  fprintf('Data stored!\n\n');
+  clear data_msc data_trial 
+  
+end
+
 %% clear workspace
-clear cfg i file_path eventMarkers
+clear cfg i file_path

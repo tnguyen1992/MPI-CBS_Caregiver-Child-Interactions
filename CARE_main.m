@@ -63,8 +63,8 @@ end
 if ~exist(strcat(desPath, '05a_wtc'), 'dir')
   mkdir(strcat(desPath, '05a_wtc'));
 end
-if ~exist(strcat(desPath, '05b_coherence'), 'dir')
-  mkdir(strcat(desPath, '05b_coherence'));
+if ~exist(strcat(desPath, '05b_msc'), 'dir')
+  mkdir(strcat(desPath, '05b_msc'));
 end
 if ~exist(strcat(desPath, '06a_pwelch'), 'dir')
   mkdir(strcat(desPath, '06a_pwelch'));
@@ -202,7 +202,7 @@ else
     fprintf('[2] - Data preprocessing\n');
     fprintf('[3] - Conduct a generalized linear model regression with single subjects\n'); 
     fprintf('[4] - Estimation of cross-correlation\n');
-    fprintf('[5] - Calculation of coherences\n');
+    fprintf('[5] - Calculation of coherence using different approaches\n');
     fprintf('[6] - Power analysis (pWelch)\n');
     fprintf('[7] - Averaging over dyads\n');
     fprintf('[8] - Quit data processing\n\n');
@@ -293,8 +293,8 @@ switch part
     tmpPath = strcat(desPath, '02a_preproc/');
     fileNamePre = strcat(tmpPath, 'CARE_d*_02a_preproc_', sessionStr, ...
                          '.mat');
-    tmpPath = strcat(desPath, '05b_coherence/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_05b_coherence_', sessionStr, '.mat');
+    tmpPath = strcat(desPath, '05b_msc/');
+    fileNamePost = strcat(tmpPath, 'CARE_d*_05b_msc_', sessionStr, '.mat');
   case 6
     tmpPath = strcat(desPath, '02b_trial/');
     fileNamePre = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
@@ -453,7 +453,7 @@ while sessionStatus == true
         fprintf('<strong>Continue data processing with:</strong>\n');
         fprintf('<strong>[3] - Conduct a generalized linear model regression with single subjects?</strong>\n');
         fprintf('<strong>[4] - Estimation of cross-correlation?</strong>\n');
-        fprintf('<strong>[5] - Calculation of coherences?</strong>\n');
+        fprintf('<strong>[5] - Calculation of coherence using different approaches?</strong>\n');
         fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
         fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
         fprintf('<strong>[8] - Quit data processing?</strong>\n');
@@ -493,7 +493,7 @@ while sessionStatus == true
       while selection == false
         fprintf('<strong>Continue data processing with:</strong>\n');
         fprintf('<strong>[4] - Estimation of cross-correlation?</strong>\n');
-        fprintf('<strong>[5] - Calculation of coherences?</strong>\n');
+        fprintf('<strong>[5] - Calculation of coherence using different approaches?</strong>\n');
         fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
         fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
         fprintf('<strong>[8] - Quit data processing?</strong>\n');
@@ -528,7 +528,7 @@ while sessionStatus == true
       selection = false;
       while selection == false
         fprintf('<strong>Continue data processing with:</strong>\n');
-        fprintf('<strong>[5] - Calculation of coherences?</strong>\n');
+        fprintf('<strong>[5] - Calculation of coherence using different approaches?</strong>\n');
         fprintf('<strong>[6] - Power analysis (pWelch)?</strong>\n');
         fprintf('<strong>[7] - Averaging over dyads?</strong>\n');
         fprintf('<strong>[8] - Quit data processing?</strong>\n');
