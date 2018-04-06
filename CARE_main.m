@@ -3,7 +3,7 @@ CARE_init;
 
 cprintf([0,0.6,0], '<strong>--------------------------------------------------------------------</strong>\n');
 cprintf([0,0.6,0], '<strong>Caregiver child interactions project - data processing</strong>\n');
-cprintf([0,0.6,0], '<strong>Version: 0.1</strong>\n');
+cprintf([0,0.6,0], '<strong>Version: 0.2</strong>\n');
 cprintf([0,0.6,0], 'Copyright (C) 2017-2018, Daniel Matthes, Quynh Trinh Nguyen, MPI CBS\n');
 cprintf([0,0.6,0], '<strong>--------------------------------------------------------------------</strong>\n');
 
@@ -45,6 +45,9 @@ if newPaths == true
   gsePath = strcat(gsePath, '/');
 end
 
+if ~exist(strcat(desPath, '00_settings'), 'dir')
+  mkdir(strcat(desPath, '00_settings'));
+end
 if ~exist(strcat(desPath, '01_raw_nirs'), 'dir')
   mkdir(strcat(desPath, '01_raw_nirs'));
 end

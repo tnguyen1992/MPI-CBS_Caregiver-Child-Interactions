@@ -38,6 +38,67 @@ end
 cprintf([0,0.6,0], '<strong>[5] - Calculation of coherence using different approaches</strong>\n');
 fprintf('\n');
 
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'Do you want to use the default period of interest ([23 100]) for the coherence estimation?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    poi = [23 100];                                                         % period of interest in seconds, master thesis settings: [30 136]
+  elseif strcmp('n', x)
+    selection = true;
+    poi = [];
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
+if isempty(poi)
+  selection = false;
+  while selection == false
+    cprintf([0,0.6,0], 'Specify a period of interest in a range between 1 and 150 seconds!\n');
+    cprintf([0,0.6,0], 'Caution: The minimum period must be <= 32 seconds!\n');
+    cprintf([0,0.6,0], 'Put your selection in squared brackets!\n');
+    x = input('Value: ');
+    if isnumeric(x)
+      if (min(x) < 1 || max(x) > 150)
+        cprintf([1,0.5,0], 'Wrong input!\n');
+        selection = false;
+      elseif (min(x) > 32)                                                  % otherwise the mscohere estimation would fail
+        cprintf([1,0.5,0], 'Wrong input!\n');
+        selection = false;
+      else
+        poi = x;
+        selection = true;
+      end
+    else
+      cprintf([1,0.5,0], 'Wrong input!\n');
+      selection = false;
+    end
+  end
+fprintf('\n');  
+end
+
+% Write selected settings to settings file
+file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
+if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
+  cfg = [];
+  cfg.desFolder   = [desPath '00_settings/'];
+  cfg.type        = 'settings';
+  cfg.sessionStr  = sessionStr;
+  
+  CARE_createTbl(cfg);                                                      % create settings file
+end
+
+T = readtable(file_path);                                                   % update settings table
+warning off;
+T.dyad(numOfPart)   = numOfPart;
+T.CohPOI(numOfPart) = {vec2str(poi, [], [], 1)};
+warning on;
+delete(file_path);
+writetable(T, file_path);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % wavelet transform coherence
 for i = numOfPart
@@ -54,7 +115,7 @@ for i = numOfPart
   
   % estimate wavelet coherence
   cfg = [];
-  cfg.poi          = [23 100];                                              % period of interest in seconds, master thesis settings: [30 136] 
+  cfg.poi          = poi; 
   
   data_wtc = CARE_wtc(cfg, data_preproc);
   
@@ -91,7 +152,7 @@ for i = numOfPart
   
   % estimate wavelet coherence
   cfg = [];
-  cfg.poi          = [23 100];                                              % period of interest in seconds
+  cfg.poi          = poi;
   
   data_msc = CARE_msc(cfg, data_trial);
   
@@ -113,4 +174,4 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg i file_path
+clear cfg i file_path selection x poi T
