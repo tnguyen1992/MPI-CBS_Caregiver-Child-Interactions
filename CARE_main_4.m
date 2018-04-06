@@ -37,7 +37,7 @@ fprintf('\n');
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n', i);
   
-  % load preprocessed data
+  % load trial-based preprocessed data
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '02b_trial/');
   cfg.filename    = sprintf('CARE_d%02d_02b_trial', i);
@@ -48,7 +48,7 @@ for i = numOfPart
   
   % estimate cross-correlation between associated channels of caregiver and child
   cfg = [];
-  cfg.maxlag = 30;
+  cfg.maxlag = 30;                                                          % maxlag in seconds, limits the lag range from –maxlag to maxlag
   
   data_xcorr = CARE_xcorr( cfg, data_trial );
   
@@ -70,4 +70,4 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg i file_path eventMarkers
+clear cfg i file_path

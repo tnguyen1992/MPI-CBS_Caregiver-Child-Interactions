@@ -71,8 +71,8 @@ label = {'Chn01'; 'Chn02'; 'Chn03'; 'Chn04'; 'Chn05'; 'Chn06'; 'Chn07'; ...
          'Chn08'; 'Chn09'; 'Chn10'; 'Chn11'; 'Chn12'; 'Chn13'; 'Chn14'; ...
          'Chn15'; 'Chn16'};
 
-data_trial.sub1.dimord = 'rpt_hbo_chan';
-data_trial.sub2.dimord = 'rpt_hbo_chan';
+data_trial.sub1.dimord = 'rpt_time_chan';
+data_trial.sub2.dimord = 'rpt_time_chan';
 data_trial.sub1.label = label;
 data_trial.sub2.label = label;
 data_trial.sub1.trialinfo = trialinfo;

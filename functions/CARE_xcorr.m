@@ -47,7 +47,7 @@ end
 % -------------------------------------------------------------------------
 % Add additional informations to output
 % -------------------------------------------------------------------------
-data_xcorr.dimord           = 'rpt_xcorr_chan';
+data_xcorr.dimord           = 'rpt_lag_chan';
 data_xcorr.label            = data_trial.sub1.label;
 data_xcorr.trialinfo        = data_trial.sub1.trialinfo;
 data_xcorr.fsample          = data_trial.sub1.fsample;
