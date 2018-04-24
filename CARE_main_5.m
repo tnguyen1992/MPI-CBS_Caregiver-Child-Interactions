@@ -80,6 +80,22 @@ if isempty(poi)
 fprintf('\n');  
 end
 
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'WTC: Do you want to set all values below cone of interest to NaN?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    considerCOI = true;                                                     % consider cone of interest
+  elseif strcmp('n', x)
+    selection = true;
+    considerCOI = false;
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
 % Write selected settings to settings file
 file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
 if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
@@ -93,8 +109,9 @@ end
 
 T = readtable(file_path);                                                   % update settings table
 warning off;
-T.dyad(numOfPart)   = numOfPart;
-T.CohPOI(numOfPart) = {vec2str(poi, [], [], 1)};
+T.dyad(numOfPart)     = numOfPart;
+T.CohPOI(numOfPart)   = {vec2str(poi, [], [], 1)};
+T.ConsCOI(numOfPart)  = { x };
 warning on;
 delete(file_path);
 writetable(T, file_path);
@@ -116,6 +133,7 @@ for i = numOfPart
   % estimate wavelet coherence
   cfg = [];
   cfg.poi          = poi; 
+  cfg.considerCOI  = considerCOI;
   
   data_wtc = CARE_wtc(cfg, data_preproc);
   
@@ -174,4 +192,4 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg i file_path selection x poi T
+clear cfg i file_path selection x poi considerCOI T

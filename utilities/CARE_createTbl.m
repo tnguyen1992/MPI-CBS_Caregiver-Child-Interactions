@@ -36,8 +36,8 @@ end
 % -------------------------------------------------------------------------
 switch type
   case 'settings'
-    T = table(1,{'unknown'});
-    T.Properties.VariableNames = {'dyad', 'CohPOI'};
+    T = table(1,{'unknown'}, {'unknown'});
+    T.Properties.VariableNames = {'dyad', 'CohPOI', 'ConsCOI'};
     filepath = [desFolder type '_' sessionStr '.xls'];
     writetable(T, filepath);
   otherwise

@@ -8,7 +8,9 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % where the input data has to be the result from CARE_PREPROCESSING
 %
 % The configuration options are
-%   cfg.poi          = period of interest in seconds (default: [23 100])
+%   cfg.poi           = period of interest in seconds (default: [23 100])
+%   cfg.considerCOI   = true or false, if true the values below the cone of
+%                       interest will be set to NaN
 %
 % SEE also CARE_PREPROCESSING, WTC
 
@@ -17,7 +19,8 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-poi = CARE_getopt(cfg, 'poi', [23 100]);
+poi           = CARE_getopt(cfg, 'poi', [23 100]);
+considerCOI   = CARE_getopt(cfg, 'considerCOI', true);
 
 if ~isequal(length(poi), 2)
   error('cfg.poi has wrong size. Define cfg.poi = [begin end]');  
@@ -66,7 +69,7 @@ numOfChan = size(hboSub1, 2);
 % Estimate periods of interest
 % -------------------------------------------------------------------------
 pnoi = zeros(2,1);
-i = 16;
+i = numOfChan;
 while (isnan(hboSub1(1, i)) || isnan(hboSub2(1, i)))                        % check if 16 th channel was not rejected in both subjects during preprocessing
   i = i - 1;                                                                % if 16th channel was rejected in at least on subject
   if i == 0                                                                 % search for next channel which was not rejected  
@@ -90,6 +93,8 @@ coherences  = zeros(numOfChan, 6);
 meanCohCollab = zeros(1, length(evtCollaboration));                         % mean coherence in a defined spectrum for condition collaboration  
 meanCohIndiv  = zeros(1, length(evtIndividual));                            % mean coherence in a defined spectrum for condition individual
 meanCohBase   = zeros(1, length(evtBaseline));                              % mean coherence in a defined spectrum for condition baseline
+Rsq{numOfChan} = [];
+Rsq(:) = {NaN(length(period), length(t))};
 
 % -------------------------------------------------------------------------
 % Calculate Coherence increase between conditions for every channel of the 
@@ -100,37 +105,43 @@ for i=1:1:numOfChan
   if ~isnan(hboSub1(1, i)) && ~isnan(hboSub2(1, i))                         % check if this channel was not rejected in both subjects during preprocessing
     sigPart1 = [t, hboSub1(:,i)];
     sigPart2 = [t, hboSub2(:,i)];
-    Rsq = wtc(sigPart1, sigPart2, 'mcc', 0);                                % r square - measure for coherence
+    [Rsq{i}, ~, ~, coi, ~] = wtc(sigPart1, sigPart2, 'mcc', 0);                % r square - measure for coherence
   
+    if considerCOI
+      for j=1:1:length(coi)
+        Rsq{i}(period >= coi(j), j) = NaN;
+      end
+    end
+    
     % calculate mean activation in frequency band of interest
     % collaboration condition
     for j=1:1:length(evtCollaboration)
-      meanCohCollab(j)  = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+      meanCohCollab(j)  = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
                           evtCollaboration(j):evtCollaboration(j) + ...
                           durCollaboration)));
     end
  
     % individual condition
     for j=1:1:length(evtIndividual)
-      meanCohIndiv(j)   = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+      meanCohIndiv(j)   = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
                           evtIndividual(j):evtIndividual(j) + ...
                           durIndividual)));
     end
  
     % baseline
     for j=1:1:length(evtBaseline)
-      meanCohBase(j)    = mean(mean(Rsq(pnoi(1):pnoi(2), ...
+      meanCohBase(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
                           evtBaseline(j):evtBaseline(j) + ...
                           durBaseline)));
     end
 
-    collaboration  = mean(meanCohCollab);                                     % average mean coherences over trials
-    individual     = mean(meanCohIndiv);
-    baseline       = mean(meanCohBase);
+    collaboration  = nanmean(meanCohCollab);                                % average mean coherences over trials
+    individual     = nanmean(meanCohIndiv);
+    baseline       = nanmean(meanCohBase);
  
-    CBCI   = collaboration - baseline;                                        % coherence increase between collaboration and baseline
-    IBCI   = individual - baseline;                                           % coherence increase between individual and baseline
-    CICI   = collaboration - individual;                                      % coherence increase between collaboration and individual
+    CBCI   = collaboration - baseline;                                      % coherence increase between collaboration and baseline
+    IBCI   = individual - baseline;                                         % coherence increase between individual and baseline
+    CICI   = collaboration - individual;                                    % coherence increase between collaboration and individual
  
     coherences(i, 1:6) = [collaboration, individual, baseline, CBCI, ...
                           IBCI, CICI];
@@ -141,6 +152,7 @@ end
 
 % put results into the output data structure
 data_wtc.coherences           = coherences;
+data_wtc.Rsq                  = Rsq;
 data_wtc.params               = [11, 12, 13, 1113, 1213, 1112];
 data_wtc.paramStrings         = {'Collaboration', 'Individual', ...         % this field describes the columns of the coherences field
                                  'Baseline', 'Collab-Base', ...

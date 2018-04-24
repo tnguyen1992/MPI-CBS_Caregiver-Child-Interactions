@@ -9,7 +9,9 @@ function CARE_easyCohPlot(cfg, data)
 % where the input data has to be a result of CARE_WTC.
 %
 % The configuration options are 
-%   cfg.channel = number of channel (1 to 16) (default: 1)
+%   cfg.channel       = number of channel (1 to 16) (default: 1)
+%   cfg.considerCOI   = true or false, if true the values below the cone of
+%                       interest will be set to NaN
 %
 % See also CARE_WTC
 
@@ -18,7 +20,8 @@ function CARE_easyCohPlot(cfg, data)
 % -------------------------------------------------------------------------
 % Get config options
 % -------------------------------------------------------------------------
-channel   = CARE_getopt(cfg, 'channel', 1);
+channel     = CARE_getopt(cfg, 'channel', 1);
+considerCOI = CARE_getopt(cfg, 'considerCOI', true);
 
 % -------------------------------------------------------------------------
 % Extract hbo data, the time vector and event markers from data object
@@ -42,7 +45,30 @@ durT = t(data.cfg.durTalk + 1);                                             % ex
 % -------------------------------------------------------------------------
 sigPart1 = [t, hbo1(:,channel)];
 sigPart2 = [t, hbo2(:,channel)];
-wtc(sigPart1, sigPart2, 'mcc', 0, 'as', 0, 'ahs', 0);
+
+if considerCOI
+  [Rsq,period, ~, coi, ~] = wtc(sigPart1, sigPart2, 'mcc', 0, 'as', 0, ...
+                                'ahs', 0);
+
+  for i=1:1:length(coi)
+    Rsq(period >= coi(i), i) = NaN;
+  end
+
+  h = imagesc(t, log2(period), Rsq);
+  set(gca,'clim',[0 1]);
+  colorbar;
+  Yticks = 2.^(fix(log2(min(period))):fix(log2(max(period))));
+  set(gca,'YLim',log2([min(period),max(period)]), ...
+          'YDir','reverse', 'layer','top', ...
+          'YTick',log2(Yticks(:)), ...
+          'YTickLabel',num2str(Yticks'), ...
+          'layer','top')
+  ylabel('Period in seconds');
+  xlabel('Time in seconds');
+  set(h, 'AlphaData', ~isnan(Rsq));
+else
+  wtc(sigPart1, sigPart2, 'mcc', 0, 'as', 0, 'ahs', 0);
+end
 
 colormap jet;
 
@@ -54,8 +80,8 @@ ty0       = 0.086 * (y(2) - y(1)) + y(1);
 
 for i=1:1:length(eventC)
   x = [eventC(i) eventC(i)];
-  line(x, y, 'Color', 'white');                                             % start of i-th collaboration condition
-  line(x+durC, y, 'Color', 'white');                                        % end of i-th collaboration condition
+  line(x, y, 'Color', 'black');                                             % start of i-th collaboration condition
+  line(x+durC, y, 'Color', 'black');                                        % end of i-th collaboration condition
   rectangle('Position', [eventC(i) recty0 durC 0.42], ....                  % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventC(i) + txOffset, ty0, sprintf('Collab %d', i));                 % create condition label
@@ -63,8 +89,8 @@ end
 
 for i=1:1:length(eventI)
   x = [eventI(i) eventI(i)];
-  line(x, y, 'Color', 'white');                                             % start of i-th individual condition
-  line(x+durI, y, 'Color', 'white');                                        % end of i-th individual condition
+  line(x, y, 'Color', 'black');                                             % start of i-th individual condition
+  line(x+durI, y, 'Color', 'black');                                        % end of i-th individual condition
   rectangle('Position', [eventI(i) recty0 durI 0.42], ...                   % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventI(i) + txOffset, ty0, sprintf('Indiv %d', i));                  % create condition label
@@ -72,8 +98,8 @@ end
 
 for i=1:1:length(eventR)
   x = [eventR(i) eventR(i)];
-  line(x, y, 'Color', 'white');                                             % start of i-th resting condition
-  line(x+durR, y, 'Color', 'white');                                        % end of i-th resting condition
+  line(x, y, 'Color', 'black');                                             % start of i-th resting condition
+  line(x+durR, y, 'Color', 'black');                                        % end of i-th resting condition
   rectangle('Position', [eventR(i) recty0 durR 0.42], ....                  % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventR(i) + txOffset, ty0, sprintf('Rest %d', i));                   % create condition label
@@ -81,8 +107,8 @@ end
 
 for i=1:1:length(eventT)
   x = [eventT(i) eventT(i)];
-  line(x, y, 'Color', 'white');                                             % start of i-th resting condition
-  line(x+durT, y, 'Color', 'white');                                        % end of i-th resting condition
+  line(x, y, 'Color', 'black');                                             % start of i-th resting condition
+  line(x+durT, y, 'Color', 'black');                                        % end of i-th resting condition
   rectangle('Position', [eventT(i) recty0 durT 0.42], ....                  % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventT(i) + txOffset, ty0, sprintf('Conver %d', i));                 % create condition label
