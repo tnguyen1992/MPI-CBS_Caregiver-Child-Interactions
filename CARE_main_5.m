@@ -1,17 +1,30 @@
 %% check if basic variables are defined
-if ~exist('sessionStr', 'var')
-  cfg         = [];
-  cfg.subFolder = '02a_preproc/';
-  cfg.filename  = 'CARE_d02_02a_preproc';
-  sessionStr  = sprintf('%03d', CARE_getSessionNum( cfg ));                 % estimate current session number
+if ~exist('prefix', 'var')
+  prefix = 'CARE';
 end
 
 if ~exist('srcPath', 'var')
-  srcPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';         % source path to raw data
+  if strcmp(prefix, 'CARE')
+    srcPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';           % source path to raw data
+  else
+    srcPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_rawData/';
+  end
 end
 
 if ~exist('desPath', 'var')
-  desPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';   % destination path for processed data  
+  if strcmp(prefix, 'CARE')
+    desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';     % destination path to preprocessed data
+  else
+    desPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_processedData/';
+  end
+end
+
+if ~exist('sessionStr', 'var')
+  cfg           = []; 
+  cfg.desFolder = desPath;
+  cfg.subFolder = '02a_preproc/';
+  cfg.filename  = [prefix, '_d02_02a_preproc'];
+  sessionStr    = sprintf('%03d', CARE_getSessionNum( cfg ));               % calculate current session number
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in preprocessed data folder
@@ -24,7 +37,8 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('CARE_d%d_02a_preproc_', sessionStr, '.mat'));
+                    strcat(prefix, '_d%d_02a_preproc_', sessionStr, ...
+                    '.mat'));
   end
 end
 
@@ -123,7 +137,7 @@ for i = numOfPart
   
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '02a_preproc/');
-  cfg.filename    = sprintf('CARE_d%02d_02a_preproc', i);
+  cfg.filename    = sprintf([prefix, '_d%02d_02a_preproc'], i);
   cfg.sessionStr  = sessionStr;
   
   % load continuous preprocessed data
@@ -140,7 +154,7 @@ for i = numOfPart
   % save wavelet coherence data
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '05a_wtc/');
-  cfg.filename    = sprintf('CARE_d%02d_05a_wtc', i);
+  cfg.filename    = sprintf([prefix, '_d%02d_05a_wtc'], i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
@@ -161,7 +175,7 @@ for i = numOfPart
   
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '02b_trial/');
-  cfg.filename    = sprintf('CARE_d%02d_02b_trial', i);
+  cfg.filename    = sprintf([prefix, '_d%02d_02b_trial'], i);
   cfg.sessionStr  = sessionStr;
   
   % load trial-based preprocessed data
@@ -177,7 +191,7 @@ for i = numOfPart
   % save wavelet coherence data
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '05b_msc/');
-  cfg.filename    = sprintf('CARE_d%02d_05b_msc', i);
+  cfg.filename    = sprintf([prefix, '_d%02d_05b_msc'], i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...

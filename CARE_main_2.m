@@ -1,13 +1,30 @@
 %% check if basic variables are defined
-if ~exist('sessionStr', 'var')
-  cfg         = [];
-  cfg.subFolder = '01_raw_nirs/';
-  cfg.filename  = 'CARE_d02b_01_raw_nirs';
-  sessionStr  = sprintf('%03d', CARE_getSessionNum( cfg ));                 % estimate current session number
+if ~exist('prefix', 'var')
+  prefix = 'CARE';
+end
+
+if ~exist('srcPath', 'var')
+  if strcmp(prefix, 'CARE')
+    srcPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';           % source path to raw data
+  else
+    srcPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_rawData/';
+  end
 end
 
 if ~exist('desPath', 'var')
-  desPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';   % destination path for processed data  
+  if strcmp(prefix, 'CARE')
+    desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';     % destination path to preprocessed data
+  else
+    desPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_processedData/';
+  end
+end
+
+if ~exist('sessionStr', 'var')
+  cfg           = []; 
+  cfg.desFolder = desPath;
+  cfg.subFolder = '01_raw_nirs/';
+  cfg.filename  = [prefix, '_d02b_01_raw_nirs'];
+  sessionStr    = sprintf('%03d', CARE_getSessionNum( cfg ));               % calculate current session number
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in raw data folder
@@ -20,7 +37,8 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('CARE_d%db_01_raw_nirs_', sessionStr, '.nirs'));
+                    strcat(prefix, '_d%d_01_raw_nirs_', sessionStr, ...
+                    '.nirs'));
   end
 end
 
@@ -35,7 +53,7 @@ for i = numOfPart
   
   % extract event markers
   cfg = [];
-  cfg.dyad    = sprintf('CARE_%02d', i);
+  cfg.dyad    = sprintf([prefix, '_%02d'], i);
   cfg.srcPath = srcPath;
   
   fprintf('Extract event markers from hdr file...\n');
@@ -44,7 +62,7 @@ for i = numOfPart
   % load raw data of subject 1
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '01_raw_nirs/');
-  cfg.filename    = sprintf('CARE_d%02da_01_raw_nirs', i);
+  cfg.filename    = sprintf([prefix, '_d%02da_01_raw_nirs'], i);
   cfg.sessionStr  = sessionStr;
   
   fprintf('Load raw nirs data of subject 1...\n');
@@ -65,7 +83,7 @@ for i = numOfPart
   
   % load raw data of subject 2
   cfg             = [];
-  cfg.filename    = sprintf('CARE_d%02db_01_raw_nirs', i);
+  cfg.filename    = sprintf([prefix, '_d%02db_01_raw_nirs'], i);
   
   fprintf('Load raw nirs data of subject 2...\n');
   CARE_loadData( cfg );
@@ -89,7 +107,7 @@ for i = numOfPart
   % save preprocessed data
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '02a_preproc/');
-  cfg.filename    = sprintf('CARE_d%02d_02a_preproc', i);
+  cfg.filename    = sprintf([prefix, '_d%02d_02a_preproc'], i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
@@ -107,7 +125,7 @@ for i = numOfPart
   % save trial-based data
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '02b_trial/');
-  cfg.filename    = sprintf('CARE_d%02d_02b_trial', i);
+  cfg.filename    = sprintf([prefix, '_d%02d_02b_trial'], i);
   cfg.sessionStr  = sessionStr;
   
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...

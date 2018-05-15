@@ -1,13 +1,22 @@
 %% check if basic variables are defined
-if ~exist('sessionStr', 'var')
-  cfg           = [];
-  cfg.subFolder = '03_glm/';
-  cfg.filename  = 'CARE_d02_03_glm';
-  sessionStr    = sprintf('%03d', CARE_getSessionNum( cfg ));               % estimate current session number
+if ~exist('prefix', 'var')
+  prefix = 'CARE';
 end
 
 if ~exist('desPath', 'var')
-  desPath     = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';   % destination path for processed data  
+  if strcmp(prefix, 'CARE')
+    desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';     % destination path to preprocessed data
+  else
+    desPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_processedData/';
+  end
+end
+
+if ~exist('sessionStr', 'var')
+  cfg           = []; 
+  cfg.desFolder = desPath;
+  cfg.subFolder = '03_glm/';
+  cfg.filename  = [prefix, '_d02_03_glm'];
+  sessionStr    = sprintf('%03d', CARE_getSessionNum( cfg ));               % calculate current session number
 end
 
 %% part 7
@@ -45,7 +54,7 @@ if avgOverDyads == true
   % export the averaged beta values into a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '07a_betaod/');
-  cfg.filename    = 'CARE_07a_betaod';
+  cfg.filename    = [prefix, '_07a_betaod'];
   cfg.sessionStr  = sessionStr;
 
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
@@ -87,7 +96,7 @@ if avgOverDyads == true
   % export the averaged beta values into a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '07b_wcod/');
-  cfg.filename    = 'CARE_07b_wcod';
+  cfg.filename    = [prefix, '_07b_wcod'];
   cfg.sessionStr  = sessionStr;
 
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...

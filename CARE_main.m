@@ -10,14 +10,39 @@ cprintf([0,0.6,0], '<strong>----------------------------------------------------
 % -------------------------------------------------------------------------
 % Path settings
 % -------------------------------------------------------------------------
-srcPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';               % location of raw data
-desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';         % memory space for processed data
-gsePath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/';       % path to CARE.SD
+selection = false;
+while selection == false
+  fprintf('\nDo you want to process CARE or DCARE data?\n');
+  fprintf('[1] - CARE\n');
+  fprintf('[2] - DCARE\n');
+  x = input('Option: ');
+  
+  switch x
+    case 1
+      selection = true;
+      prefix = 'CARE';
+    case 2
+      selection = true;
+      prefix = 'DCARE';
+    otherwise
+      cprintf([1,0.5,0], 'Wrong input!\n');
+  end
+end
+
+if strcmp(prefix, 'CARE')
+  srcPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_rawData/';             % location of raw data
+  desPath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/';       % memory space for processed data
+  gsePath = '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/';     % path to CARE.SD
+else
+  srcPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_rawData/';            % location of raw data
+  desPath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_processedData/';      % memory space for processed data
+  gsePath = '/data/pt_01958/fnirsData/DualfNIRS_DCARE_generalSettings/';    % path to DCARE.SD
+end
 
 fprintf('\nThe default paths are:\n');
 fprintf('Source: %s\n',srcPath);
 fprintf('Destination: %s\n',desPath);
-fprintf('Location of CARE.SD: %s\n',gsePath);
+fprintf('Location of DCARE.SD: %s\n',gsePath);
 
 selection = false;
 while selection == false
@@ -39,7 +64,7 @@ if newPaths == true
   desPath = uigetdir(strcat(srcPath,'/..'), ...
                       'Select Destination Folder...');
   gsePath = uigetdir(strcat(srcPath,'/..'), ...
-                      'Select Folder containing CARE.SD...');
+                      'Select Folder containing DCARE.SD...');
   srcPath = strcat(srcPath, '/');
   desPath = strcat(desPath, '/');
   gsePath = strcat(gsePath, '/');
@@ -88,7 +113,7 @@ selection = false;
 
 tmpPath = strcat(desPath, '01_raw_nirs/');
 
-sessionList    = dir([tmpPath, 'CARE_d*a_01_raw_nirs_*.nirs']);
+sessionList    = dir([tmpPath, prefix, '_d*a_01_raw_nirs_*.nirs']);
 sessionList    = struct2cell(sessionList);
 sessionList    = sessionList(1,:);
 numOfSessions  = length(sessionList);
@@ -187,7 +212,7 @@ end
 % General selection of preprocessing option
 % -------------------------------------------------------------------------
 selection = false;
-sdFile = [gsePath 'CARE' '.SD'];
+sdFile = [gsePath prefix '.SD'];
 
 if session == 0 && isempty(dir(sdFile))
   fprintf('\nA sources/detectors definition does not exist, this new session will start with part:\n');
@@ -251,59 +276,62 @@ end
 % -------------------------------------------------------------------------
 % Specific selection of dyads
 % -------------------------------------------------------------------------
-sourceList    = dir([srcPath 'CARE_*']);
+sourceList    = dir([srcPath, prefix, '_*']);
 sourceList    = struct2cell(sourceList);
 sourceList    = sourceList(1,:);
 numOfSources  = length(sourceList);
 fileNum       = zeros(1, numOfSources);
 
 for i=1:1:numOfSources
-  fileNum(i)     = sscanf(sourceList{i}, 'CARE_%d');
+  fileNum(i)     = sscanf(sourceList{i}, [prefix, '_%d']);
 end
 
 switch part
   case 0
     fileNamePre = [];
     tmpPath = strcat(desPath, '01_raw_nirs/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
-                          '.nirs');
+    fileNamePost = strcat(tmpPath, prefix, '_d*b_01_raw_nirs_', ...
+                          sessionStr, '.nirs');
   case 1
     fileNamePre = [];
     tmpPath = strcat(desPath, '01_raw_nirs/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
-                          '.nirs');
+    fileNamePost = strcat(tmpPath, prefix, '_d*b_01_raw_nirs_', ...
+                          sessionStr, '.nirs');
   case 2
     tmpPath = strcat(desPath, '01_raw_nirs/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*b_01_raw_nirs_', sessionStr, ...
-                         '.nirs');
+    fileNamePre = strcat(tmpPath, prefix, '_d*b_01_raw_nirs_', ...
+                          sessionStr, '.nirs');
     tmpPath = strcat(desPath, '02b_trial/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
-                          '.mat');
+    fileNamePost = strcat(tmpPath, prefix, '_d*_02b_trial_', ...
+                          sessionStr, '.mat');
   case 3
     tmpPath = strcat(desPath, '02a_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02a_preproc_', sessionStr, ...
-                         '.mat');
+    fileNamePre = strcat(tmpPath, prefix, '_d*_02a_preproc_', ...
+                          sessionStr, '.mat');
     tmpPath = strcat(desPath, '03_glm/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_03_glm_', sessionStr, ...
-                          '.mat');
+    fileNamePost = strcat(tmpPath, prefix, '_d*_03_glm_', ...
+                          sessionStr, '.mat');
   case 4
     tmpPath = strcat(desPath, '02b_trial/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
-                         '.mat');
+    fileNamePre = strcat(tmpPath, prefix, '_d*_02b_trial_', ...
+                          sessionStr, '.mat');
     tmpPath = strcat(desPath, '04_xcorr/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_04_xcorr_', sessionStr, '.mat');
+    fileNamePost = strcat(tmpPath, prefix, '_d*_04_xcorr_', ...
+                          sessionStr, '.mat');
   case 5
     tmpPath = strcat(desPath, '02a_preproc/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02a_preproc_', sessionStr, ...
-                         '.mat');
+    fileNamePre = strcat(tmpPath, prefix, '_d*_02a_preproc_', ...
+                          sessionStr, '.mat');
     tmpPath = strcat(desPath, '05b_msc/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_05b_msc_', sessionStr, '.mat');
+    fileNamePost = strcat(tmpPath, prefix, '_d*_05b_msc_', ...
+                          sessionStr, '.mat');
   case 6
     tmpPath = strcat(desPath, '02b_trial/');
-    fileNamePre = strcat(tmpPath, 'CARE_d*_02b_trial_', sessionStr, ...
-                         '.mat');
+    fileNamePre = strcat(tmpPath, prefix, '_d*_02b_trial_', ...
+                          sessionStr, '.mat');
     tmpPath = strcat(desPath, '06a_pwelch/');
-    fileNamePost = strcat(tmpPath, 'CARE_d*_06a_pwelch_', sessionStr, '.mat');
+    fileNamePost = strcat(tmpPath, prefix, '_d*_06a_pwelch_', ...
+                          sessionStr, '.mat');
   case 7
     fileNamePre = 0;
   otherwise
@@ -331,8 +359,8 @@ if ~isequal(fileNamePre, 0)
       numOfFiles  = length(fileListPre);
       numOfPrePart = zeros(1, numOfFiles);
       for i=1:1:numOfFiles
-        numOfPrePart(i) = sscanf(fileListPre{i}, strcat('CARE_d%d*', ...
-                                  sessionStr, '.*'));
+        numOfPrePart(i) = sscanf(fileListPre{i}, strcat(prefix, ...
+                                  '_d%d*', sessionStr, '.*'));
       end
     end
   end
@@ -369,7 +397,8 @@ if ~isequal(fileNamePre, 0)
         numOfFiles  = length(fileListPost);
         numOfPostPart = zeros(1, numOfFiles);
         for i=1:1:numOfFiles
-          numOfPostPart(i) = sscanf(fileListPost{i}, strcat('CARE_d%d*', sessionStr, '.*'));
+          numOfPostPart(i) = sscanf(fileListPost{i}, strcat(prefix, ...
+                                      '_d%d*', sessionStr, '.*'));
         end
       end
   
