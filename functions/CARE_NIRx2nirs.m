@@ -11,6 +11,7 @@ function CARE_NIRx2nirs( cfg )
 %
 % The configuration options are
 %   cfg.dyadNum     = dyad description (i.e. 2)
+%   cfg.prefix      = CARE or DCARE, defines raw data file prefix (default: CARE)
 %   cfg.srcPath     = location of NIRx output for both subjects of the dyad 
 %   cfg.desPath     = memory location for the NIRS file (default: '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/01_raw_nirs')
 %   cfg.SDfile      = memory location of the *.SD file (default: '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/CARE.SD')
@@ -28,8 +29,9 @@ function CARE_NIRx2nirs( cfg )
 % Get and check config options
 % -------------------------------------------------------------------------
 dyadNum     = CARE_getopt(cfg, 'dyadNum', []);
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
 srcPath     = CARE_getopt(cfg, 'srcPath', []);
-desPath     = CARE_getopt(cfg, 'gsePath', ...
+desPath     = CARE_getopt(cfg, 'desPath', ...
             '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/01_raw_nirs/');
 SDfile      = CARE_getopt(cfg, 'SDfile', ...
             '/data/pt_01867/fnirsData/DualfNIRS_CARE_generalSettings/CARE.SD');
@@ -43,15 +45,19 @@ if isempty(dyadNum)
   error('No file prefix is specified!');
 end
 
+if ~(strcmp(prefix, 'CARE') || strcmp(prefix, 'DCARE'))
+  error('cfg.prefix have to be either CARE or DCARE');
+end
+
 % -------------------------------------------------------------------------
 % Build filenames
 % -------------------------------------------------------------------------
-Sub1SrcDir  = strcat(srcPath, sprintf('CARE_%02d', dyadNum), '/Subject1/');
-Sub2SrcDir  = strcat(srcPath, sprintf('CARE_%02d', dyadNum), '/Subject2/');
-Sub1DesFile = strcat(desPath, sprintf('CARE_d%02da_01_raw_nirs_', dyadNum), ...
-                     sessionStr, '.nirs');
-Sub2DesFile = strcat(desPath, sprintf('CARE_d%02db_01_raw_nirs_', dyadNum), ...
-                     sessionStr, '.nirs');
+Sub1SrcDir  = strcat(srcPath, sprintf([prefix, '_%02d'], dyadNum), '/Subject1/');
+Sub2SrcDir  = strcat(srcPath, sprintf([prefix, '_%02d'], dyadNum), '/Subject2/');
+Sub1DesFile = strcat(desPath, sprintf([prefix, '_d%02da_01_raw_nirs_'], ...
+                      dyadNum), sessionStr, '.nirs');
+Sub2DesFile = strcat(desPath, sprintf([prefix, '_d%02db_01_raw_nirs_'], ...
+                      dyadNum), sessionStr, '.nirs');
 
 % -------------------------------------------------------------------------
 % Load SD file
@@ -64,9 +70,9 @@ load(SDfile, '-mat', 'SD');
 if ~exist(Sub1SrcDir, 'dir')
   error('Directory: %s does not exist', Sub1SrcDir);
 else
-  Sub1_wl1File = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyadNum), '.wl1');
-  Sub1_wl2File = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyadNum), '.wl2');
-  Sub1_hdrFile = strcat(Sub1SrcDir, sprintf('CARE_%02d', dyadNum), '.hdr');
+  Sub1_wl1File = strcat(Sub1SrcDir, sprintf([prefix, '_%02d'], dyadNum), '.wl1');
+  Sub1_wl2File = strcat(Sub1SrcDir, sprintf([prefix, '_%02d'], dyadNum), '.wl2');
+  Sub1_hdrFile = strcat(Sub1SrcDir, sprintf([prefix, '_%02d'], dyadNum), '.hdr');
   if ~exist(Sub1_wl1File, 'file')
     error('wl1 file: %s does not exist', Sub1_wl1File);
   end
@@ -81,9 +87,9 @@ end
 if ~exist(Sub2SrcDir, 'dir')
   error('Directory: %s does not exist', Sub2SrcDir);
 else
-  Sub2_wl1File = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyadNum), '.wl1');
-  Sub2_wl2File = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyadNum), '.wl2');
-  Sub2_hdrFile = strcat(Sub2SrcDir, sprintf('CARE_%02d', dyadNum), '.hdr');
+  Sub2_wl1File = strcat(Sub2SrcDir, sprintf([prefix, '_%02d'], dyadNum), '.wl1');
+  Sub2_wl2File = strcat(Sub2SrcDir, sprintf([prefix, '_%02d'], dyadNum), '.wl2');
+  Sub2_hdrFile = strcat(Sub2SrcDir, sprintf([prefix, '_%02d'], dyadNum), '.hdr');
   if ~exist(Sub2_wl1File, 'file')
     error('wl1 file: %s does not exist', Sub2_wl1File);
   end

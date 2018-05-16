@@ -78,6 +78,7 @@ for i = numOfPart
   else
     cfg = [];
     cfg.dyadNum     = i;
+    cfg.prefix      = prefix;
     cfg.srcPath     = srcPath;
     cfg.desPath     = desFolder;
     cfg.SDfile      = strcat(gsePath, prefix, '.SD');

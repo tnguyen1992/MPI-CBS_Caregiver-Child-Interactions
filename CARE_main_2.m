@@ -141,7 +141,9 @@ for i = numOfPart
   
   % load raw data of subject 2
   cfg             = [];
+  cfg.srcFolder   = strcat(desPath, '01_raw_nirs/');
   cfg.filename    = sprintf([prefix, '_d%02db_01_raw_nirs'], i);
+  cfg.sessionStr  = sessionStr;
   
   fprintf('Load raw nirs data of subject 2...\n');
   CARE_loadData( cfg );
