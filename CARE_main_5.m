@@ -123,7 +123,6 @@ end
 
 T = readtable(file_path);                                                   % update settings table
 warning off;
-T.dyad(numOfPart)     = numOfPart;
 T.CohPOI(numOfPart)   = {vec2str(poi, [], [], 1)};
 T.ConsCOI(numOfPart)  = { x };
 warning on;

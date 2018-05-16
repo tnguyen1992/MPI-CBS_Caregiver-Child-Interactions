@@ -1,40 +1,51 @@
-function [data] = CARE_preprocessing( data )
+function [data] = CARE_preprocessing( cfg, data )
 % CARE_PREPROCESSING does the general preprocessing of the fnirs data. The
 % function includes the following steps
 %   * Conversion from wavelength data to optical density
 %   * Removing of bad channels
 %   * Wavlet-based motion correction
+%   * Pulse quality check
 %   * Bandpass filtering
 %   * Conversion from optical density to changes in concentration (HbO, HbR and HbT)
 %   * Xu Cui's bad channel check
 %
 % Use as
-%   CARE_PREPROCESSING( data )
+%   CARE_PREPROCESSING( cfg, data )
 %
 % where the input data has to be the result from CARE_NIRX2NIRS or
 % the exported *.nirs output from NIRStar.
+%
+% The configuration options are
+%   cfg.XuCuiQualityCheck = apply quality check developed Xu Cui, 'yes' or 'no', (default: 'yes') 
+%   cfg.pulseQualityCheck = apply visual pulse quality check, 'yes' or 'no', (default: 'no')
 %
 % TODO: Fix or remove application of enPruneChannels.
 %
 % SEE also HMRINTENSITY2OD, ENPRUNECHANNELS, HMRMOTIONCORRECTWAVELET,
 % HMRMOTIONARTIFACT, HMRBANDPASSFILT, HMROD2CONC, CARE_XUCHECKDATAQUALITY
 
-% Copyright (C) 2017, Daniel Matthes, MPI CBS
+% Copyright (C) 2017-2018, Daniel Matthes, MPI CBS
+
+% -------------------------------------------------------------------------
+% Get and check config options
+% -------------------------------------------------------------------------
+cfg.XuCuiQualityCheck = CARE_getopt(cfg, 'XuCuiQualityCheck', 'no');
+cfg.pulseQualityCheck = CARE_getopt(cfg, 'pulseQualityCheck', 'yes');
 
 % -------------------------------------------------------------------------
 % Preprocessing
 % -------------------------------------------------------------------------
 fprintf('<strong>Preproc subject 1...</strong>\n');
-data.sub1 = preproc( data.sub1 );
+data.sub1 = preproc( cfg, data.sub1 );
 fprintf('<strong>Preproc subject 2...</strong>\n');
-data.sub2 = preproc( data.sub2 );
+data.sub2 = preproc( cfg, data.sub2 );
 
 end
 
 % -------------------------------------------------------------------------
 % Local functions
 % -------------------------------------------------------------------------
-function data = preproc( data )
+function data = preproc( mainCfg, data )
 
 % convert the wavelength data to optical density
 cfg = [];
@@ -82,7 +93,18 @@ data.tIncAuto       = hmrMotionArtifact(data.dod_corr, data.fs, data.SD,...
                                         cfg.tInc, cfg.tMotion,...
                                         cfg.tMask, cfg.stdevThreshold,...
                                         cfg.ampThreshold);
-                                      
+
+% run pulse quality check
+if strcmp(mainCfg.pulseQualityCheck, 'yes')
+  cfg = [];
+  cfg.info      = 'Pulse quality check';
+  cfg.previous  = data.cfg;
+  data.cfg      = cfg;
+  fprintf('Pulse quality check. Please select bad channels, in which pulse is not visible!\n');
+  data.badChannelsPulse = CARE_pulseQualityCheck(data.dod_corr, data.SD,... % run pulse quality check on all channels 
+                                                 data.t);                         
+end
+
 % bandpass filtering
 cfg = [];
 cfg.info            = 'Bandpass filtering';
@@ -96,22 +118,39 @@ data.dod_corr_filt  = hmrBandpassFilt(data.dod_corr, data.fs, cfg.hpf, ...
 % convert changes in OD to changes in concentrations (HbO, HbR, and HbT)
 cfg = [];
 cfg.info      = 'Optical Density to concentrations (HbO, HbR, and HbT)';
-cfg.ppf      = [6 6];                                                      % partial pathlength factors for each wavelength.
+cfg.ppf      = [6 6];                                                       % partial pathlength factors for each wavelength.
 cfg.previous  = data.cfg;
 data.cfg      = cfg;
 data.dc       = hmrOD2Conc(data.dod_corr_filt, data.SD, cfg.ppf);
 
-% run Xu's bad channel check
+% extract hbo and hbr
 data.hbo = squeeze(data.dc(:,1,:));
 data.hbr = squeeze(data.dc(:,2,:));
 
-data.badChannelsCui = CARE_XuCheckDataQuality(data.hbo, data.hbr);          % run quality check on all channels
+% run Xu's bad channel check
+if strcmp(mainCfg.XuCuiQualityCheck, 'yes')
+  cfg = [];
+  cfg.info      = 'Xu Cui data quality check';
+  cfg.previous  = data.cfg;
+  data.cfg      = cfg;
+  data.badChannelsCui = CARE_XuCheckDataQuality(data.hbo, data.hbr);        % run Xu Cui quality check on all channels
+end
 
 % reject bad channels, set all values to NaN
-if ~isempty(data.badChannelsCui)
-  fprintf('Reject bad Channels, set all values to NaN\n');
-  data.hbo(:, data.badChannelsCui) = NaN;
-  data.hbr(:, data.badChannelsCui) = NaN;
+if strcmp(mainCfg.pulseQualityCheck, 'yes')  
+  if ~isempty(data.badChannelsPulse)
+    fprintf('Reject bad Channels (pulseQualityCheck), set all values to NaN\n');
+    data.hbo(:, data.badChannelsPulse) = NaN;
+    data.hbr(:, data.badChannelsPulse) = NaN;
+  end
+end
+
+if strcmp(mainCfg.XuCuiQualityCheck, 'yes')
+  if ~isempty(data.badChannelsCui)
+    fprintf('Reject bad Channels (XuCuiQualityCheck), set all values to NaN\n');
+    data.hbo(:, data.badChannelsCui) = NaN;
+    data.hbr(:, data.badChannelsCui) = NaN;
+  end
 end
 
 data = rmfield(data, 'aux');                                                % remove field aux from data structure

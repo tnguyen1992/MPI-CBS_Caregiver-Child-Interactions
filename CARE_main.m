@@ -201,7 +201,7 @@ while selection == false
     case 4
       fprintf('\nData processing aborted.\n');
       clear selection i x y srcPath desPath gsePath session sessionList ...
-            sessionNum numOfSessions sessionStr
+            sessionNum numOfSessions sessionStr prefix
       return;
     otherwise
       cprintf([1,0.5,0], 'Wrong input!\n');
@@ -264,7 +264,8 @@ else
       case 8
         fprintf('\nData processing aborted.\n');
         clear selection i x y srcPath desPath gsePath session ...
-              sessionList sessionNum numOfSessions sessionStr sdFile
+              sessionList sessionNum numOfSessions sessionStr sdFile ...
+              dyadsSpec prefix
         return;
       otherwise
         selection = false;
@@ -643,4 +644,4 @@ fprintf('<strong>Data processing finished.</strong>\n');
 fprintf('<strong>Session will be closed.</strong>\n');
 
 clear sessionStr numOfPart srcPath desPath gsePath sessionPart ...
-      sessionStatus selection x
+      sessionStatus selection x prefix

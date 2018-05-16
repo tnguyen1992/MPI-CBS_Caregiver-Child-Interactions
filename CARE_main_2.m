@@ -48,6 +48,64 @@ end
 cprintf([0,0.6,0], '<strong>[2] - Data preprocessing</strong>\n');
 fprintf('\n');
 
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'Do you want to apply the data quality check of Xu Cui?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    XuCui = x;
+    XuCuiCfg = 'yes';
+  elseif strcmp('n', x)
+    selection = true;
+    XuCui = x;
+    XuCuiCfg = 'no';
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'Do you want to apply the visual pulse quality check?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    pulse = x;
+    pulseCfg = 'yes';
+  elseif strcmp('n', x)
+    selection = true;
+    pulse = x;
+    pulseCfg = 'no';
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
+% Write selected settings to settings file
+file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
+if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
+  cfg = [];
+  cfg.desFolder   = [desPath '00_settings/'];
+  cfg.type        = 'settings';
+  cfg.sessionStr  = sessionStr;
+  
+  CARE_createTbl(cfg);                                                      % create settings file
+end
+
+T = readtable(file_path);                                                   % update settings table
+warning off;
+T.dyad(numOfPart)     = numOfPart;
+T.XuCuiQC(numOfPart)  = { XuCui };
+T.pulseQC(numOfPart)  = { pulse };
+warning on;
+delete(file_path);
+writetable(T, file_path);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% preprocessing
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n', i);
   
@@ -102,7 +160,11 @@ for i = numOfPart
   clear SD d s aux t eventMarkers
   
   % preprocess raw data of both subjects
-  data_preproc = CARE_preprocessing(data_raw);
+  cfg = [];
+  cfg.XuQualityCheck    = XuCuiCfg;
+  cfg.pulseQualityCheck = pulseCfg;
+
+  data_preproc = CARE_preprocessing(cfg, data_raw);
   
   % save preprocessed data
   cfg             = [];
@@ -140,4 +202,4 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg i file_path
+clear cfg i file_path XuCui XuCuiCfg pulse pulseCfg T
