@@ -7,6 +7,7 @@ function eventMarkers = CARE_extractEventMarkers( cfg )
 %
 % The configurations options are
 %   cfg.dyad    = dyad description (i.e. 'CARE_02')
+%   cfg.prefix      = CARE or DCARE, defines raw data file prefix (default: CARE)
 %   cfg.srcPath = location of NIRx output for both subjects of the dyad
 %
 % SEE also CARE_NIRX2NIRS
@@ -17,6 +18,7 @@ function eventMarkers = CARE_extractEventMarkers( cfg )
 % Get and check config options
 % -------------------------------------------------------------------------
 dyad        = CARE_getopt(cfg, 'dyad', []);
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
 srcPath     = CARE_getopt(cfg, 'srcPath', []);
 
 if isempty(srcPath)
@@ -57,8 +59,8 @@ end
 dyadString = strsplit(dyad, '_');
 dyadNum = str2double(dyadString{2});
 
-eM1 = getEvtMark( Sub1_hdrFile, dyadNum );
-eM2 = getEvtMark( Sub2_hdrFile, dyadNum );
+eM1 = getEvtMark( Sub1_hdrFile, prefix, dyadNum );
+eM2 = getEvtMark( Sub2_hdrFile, prefix, dyadNum );
 
 if isequal(eM1, eM2)
   eventMarkers = eM1;
@@ -71,20 +73,22 @@ end
 % -------------------------------------------------------------------------
 % SUBFUNCTION get event markers from *.hdr file
 % -------------------------------------------------------------------------
-function evtMarker = getEvtMark( hdrFile, num )
+function evtMarker = getEvtMark( hdrFile, pf, num )
 fid = fopen(hdrFile);
 tmp = textscan(fid,'%s','delimiter','\n');                                  % this just reads every line
 hdr_str = tmp{1};
 fclose(fid);
 
 keyword = 'Events="#';
-ind = find(contains(hdr_str,keyword)) + 1 ;                                
-ind2 = find(contains(hdr_str(ind+1:end),'#')) - 1;
+ind = find(strncmp(hdr_str, keyword, length(keyword))) + 1;
+ind2 = find(strncmp(hdr_str(ind+1:end), '#' , 1)) - 1;
 ind2 = ind + ind2(1);
 events = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 events = events(:,2:3);
-if num < 7                                                                  %  correction of markers for dyads until number 6
-  events = correctEvents( events );
+if strcmp(pf, 'CARE')
+  if num < 7                                                                %  correction of markers for dyads until number 6
+    events = correctEvents( events );
+  end
 end
 evtMarker = unique(events(:,1));
 
