@@ -1,10 +1,13 @@
-function [ data_glm ] = CARE_glm( data_preproc )
+function [ data_glm ] = CARE_glm( cfg, data_preproc )
 % CARE_GLM conducts a generalized linear model regression on the induvidual 
 % subjects of a specific dyad for every channel and returns a structure
 % including the calculated coefficients
 %
 % Use as
-%   [ data_glm ] = CARE_glm( data_preproc )
+%   [ data_glm ] = CARE_glm( cfg, data_preproc )
+%
+% The configurations options are
+%   cfg.prefix      = CARE or DCARE, defines raw data file prefix (default: CARE)
 %
 % where the input data has to be the result from CARE_PREPROCESSING
 %
@@ -13,16 +16,37 @@ function [ data_glm ] = CARE_glm( data_preproc )
 % Copyright (C) 2017-2018, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
-% General definitions
+% Get and check config options
 % -------------------------------------------------------------------------
-colCollaboration  = (data_preproc.sub1.eventMarkers == 11);
-colIndividual     = (data_preproc.sub1.eventMarkers == 12);
-colBaseline       = (data_preproc.sub1.eventMarkers == 13);
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
+
+% -------------------------------------------------------------------------
+% Load general definitions
+% -------------------------------------------------------------------------
+filepath = fileparts(mfilename('fullpath'));
+load(sprintf(['%s/../general/', prefix, '_generalDefinitions.mat'], ...
+              filepath), 'generalDefinitions');
+
+% -------------------------------------------------------------------------
+% Basic variables
+% -------------------------------------------------------------------------
+colCollaboration  = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.collabMarker);
+colIndividual     = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.indivMarker);
+colBaseline       = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.baseMarker);
+colStop           = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.stopMarker);
+
 colAll            = colCollaboration | colIndividual | colBaseline;
 
-durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
-durIndividual     = round(120 * data_preproc.sub1.fs - 1);                  % duration individual condition: 120 seconds 
-durBaseline       = round(80 * data_preproc.sub1.fs - 1);                   % duration baseline condition: 80 seconds 
+durCollaboration  = round(generalDefinitions.collabDur * ...                % duration collaboration condition
+                                  data_preproc.sub1.fs - 1);
+durIndividual     = round(generalDefinitions.indivDur * ...                 % duration individual condition
+                                  data_preproc.sub1.fs - 1);
+durBaseline       = round(generalDefinitions.baseDur * ...                  % duration baseline condition
+                                  data_preproc.sub1.fs - 1);
 
 % -------------------------------------------------------------------------
 % Adapt the s matrix
@@ -32,17 +56,33 @@ sMatrix = data_preproc.sub1.s;
 evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);
 evtBaseline       = find(sMatrix(:, colBaseline) > 0);
+evtStop           = find(sMatrix(:, colStop) > 0);                          % get sample points of stop markers
+if ~isempty(evtStop)
+  sort(evtStop);
+end
 
 for i = evtCollaboration'
-  sMatrix(i:i+durCollaboration, colCollaboration) = 1;
+  if isempty(evtStop)
+    sMatrix(i:i+durCollaboration, colCollaboration) = 1;
+  else
+    sMatrix(i:evtStop(find(evtStop > i, 1)), colCollaboration) = 1;
+  end
 end
 
 for i = evtIndividual'
-  sMatrix(i:i+durIndividual, colIndividual) = 1;
+  if isempty(evtStop)
+    sMatrix(i:i+durIndividual, colIndividual) = 1;
+  else
+    sMatrix(i:evtStop(find(evtStop > i, 1)), colIndividual) = 1;
+  end
 end
 
 for i = evtBaseline'
-  sMatrix(i:i+durBaseline, colBaseline) = 1;
+  if isempty(evtStop)
+    sMatrix(i:i+durBaseline, colBaseline) = 1;
+  else
+    sMatrix(i:evtStop(find(evtStop > i, 1)), colBaseline) = 1;
+  end
 end
 
 eventMarkers      = data_preproc.sub1.eventMarkers(colAll);

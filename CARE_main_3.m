@@ -61,7 +61,10 @@ for i = numOfPart
   CARE_loadData( cfg );
   
   % conduct the generalized linear model regression
-  data_glm = CARE_glm(data_preproc);
+  cfg = [];
+  cfg.prefix = prefix;
+
+  data_glm = CARE_glm(cfg, data_preproc);
   
   % save beta values of glm regression
   cfg             = [];

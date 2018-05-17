@@ -12,7 +12,8 @@ function CARE_helperConcatDatasets( cfg )
 %   CARE_helperConcatDatasets( cfg )
 %
 % The configuration options are 
-%   cfg.dyad = dyad string (default: 'CARE_09');
+%   cfg.dyad    = dyad string (default: 'CARE_09');
+%   cfg.prefix  = CARE or DCARE, defines raw data file prefix (default: CARE)
 %
 % Guideline:
 %   * Copy CARE_XX.hdr to Copy CARE_XX.hdr.org
@@ -36,8 +37,9 @@ function CARE_helperConcatDatasets( cfg )
 % -------------------------------------------------------------------------
 % Get config options
 % -------------------------------------------------------------------------
-dyad = CARE_getopt(cfg, 'dyad', 'CARE_09');                                 
+dyad    = CARE_getopt(cfg, 'dyad', 'CARE_09');                                 
 dyadNum = sscanf(dyad, 'CARE_%d');                                          % extract the number of the dyad
+prefix  = CARE_getopt(cfg, 'prefix', 'CARE');
 
 % -------------------------------------------------------------------------
 % General definitions
@@ -98,9 +100,9 @@ for i = 1:1:2
   % Convert data
   % -----------------------------------------------------------------------
   [d1, s1, t1, aux1, m1] = convertData (wl1File_1, wl2File_1, hdrFile_1,... % convert the data of the first recording half
-                           SD, dyadNum);
+                           SD, prefix, dyadNum);
   [d2, s2, t2, aux2, m2] = convertData (wl1File_2, wl2File_2, hdrFile_2,... % convert the data of the second recording half (NIRX2nirs) 
-                           SD, dyadNum);
+                           SD, prefix, dyadNum);
   
   % -----------------------------------------------------------------------
   % Concatenate data
@@ -156,7 +158,7 @@ end
 % -------------------------------------------------------------------------
 % SUBFUNCTION data convertion (adapted from CARE_NIRS2NIRS)
 % -------------------------------------------------------------------------
-function [d, s, t, aux, markertypes] = convertData (wl1File, wl2File, hdrFile, SD, num)
+function [d, s, t, aux, markertypes] = convertData (wl1File, wl2File, hdrFile, SD, pf, num)
 wl1 = load(wl1File);                                                        % load .wl1 file
 wl2 = load(wl2File);                                                        % load .wl2 file
 
@@ -168,11 +170,11 @@ hdr_str = tmp{1};
 fclose(fid);
 
 keyword = 'Sources=';                                                       % find number of sources
-tmp = hdr_str{contains(hdr_str, keyword)};
+tmp = hdr_str{strncmp(hdr_str, keyword, length(keyword))};
 NIRxSources = str2double(tmp(length(keyword)+1:end));
 
 keyword = 'Detectors=';                                                     % find number of detectors
-tmp = hdr_str{contains(hdr_str, keyword)};
+tmp = hdr_str{strncmp(hdr_str, keyword, length(keyword))};
 NIRxDetectors = str2double(tmp(length(keyword)+1:end));
 
 if NIRxSources < SD.nSrcs || NIRxDetectors < SD.nDets                       % Compare number of sources and detectors to SD file
@@ -180,13 +182,13 @@ if NIRxSources < SD.nSrcs || NIRxDetectors < SD.nDets                       % Co
 end
 
 keyword = 'SamplingRate=';                                                  % find Sample rate
-tmp = hdr_str{contains(hdr_str, keyword)};
+tmp = hdr_str{strncmp(hdr_str, keyword, 13)};
 fs = str2double(tmp(length(keyword)+1:end));
 
 % find Active Source-Detector pairs
 keyword = 'S-D-Mask="#';
-ind = find(contains(hdr_str,keyword)) + 1 ;                                
-ind2 = find(contains(hdr_str(ind+1:end),'#')) - 1;
+ind = find(strncmp(hdr_str, keyword, length(keyword))) + 1;
+ind2 = find(strncmp(hdr_str(ind+1:end), '#', 1)) - 1;
 ind2 = ind + ind2(1);
 sd_ind = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 sd_ind = sd_ind';
@@ -202,13 +204,15 @@ end
 
 % find event markers and build s vector
 keyword = 'Events="#';
-ind = find(contains(hdr_str,keyword)) + 1 ;                                
-ind2 = find(contains(hdr_str(ind+1:end),'#')) - 1;
+ind = find(strncmp(hdr_str, keyword, length(keyword))) + 1;
+ind2 = find(strncmp(hdr_str(ind+1:end), '#', 1)) - 1;
 ind2 = ind + ind2(1);
 events = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 events = events(:,2:3);
-if num < 7                                                                  %  correction of markers for dyads until number 6
-  events = correctEvents( events );
+if strcmp(pf, 'CARE')
+  if num < 7                                                                %  correction of markers for dyads until number 6
+    events = correctEvents( events );
+  end
 end
 markertypes = unique(events(:,1));
 s = zeros(length(d),length(markertypes));

@@ -170,7 +170,7 @@ ind2 = ind + ind2(1);
 events = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 events = events(:,2:3);
 if strcmp(pf, 'CARE')
-  if num < 7                                                                  %  correction of markers for dyads until number 6
+  if num < 7                                                                %  correction of markers for dyads until number 6
     events = correctEvents( events );
   end
 end
