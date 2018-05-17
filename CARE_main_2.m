@@ -184,7 +184,10 @@ for i = numOfPart
   clear data_raw
   
   % extract data of conditions from continuous data stream
-  data_trial = CARE_getTrl(data_preproc);
+  cfg = [];
+  cfg.prefix = prefix;
+
+  data_trial = CARE_getTrl(cfg, data_preproc);
   
   % save trial-based data
   cfg             = [];

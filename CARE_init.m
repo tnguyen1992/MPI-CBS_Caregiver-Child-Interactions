@@ -3,7 +3,7 @@
 % -------------------------------------------------------------------------
 
 filepath = fileparts(mfilename('fullpath'));
-addpath(sprintf('%s/:%s/easyplot:%s/external:%s/functions:%s/utilities', ...
-        filepath, filepath, filepath, filepath, filepath));
+addpath(sprintf('%s/:%s/easyplot:%s/external:%s/functions:%s/general:%s/utilities', ...
+        filepath, filepath, filepath, filepath, filepath, filepath));
 
 clear filepath

@@ -27,7 +27,7 @@ Elec.Ch02.Text = 'Ch02';
 Elec.Ch02.Position = [125 150 80 15];
 % Create Ch03CheckBox
 Elec.Ch03 = uicheckbox(SelectBadChannels);
-Elec.Ch03.Text = 'Ch02';
+Elec.Ch03.Text = 'Ch03';
 Elec.Ch03.Position = [205 150 80 15];
 % Create Ch04CheckBox
 Elec.Ch04 = uicheckbox(SelectBadChannels);

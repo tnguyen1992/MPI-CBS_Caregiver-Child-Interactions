@@ -1,9 +1,12 @@
-function [ data_trial ] = CARE_getTrl( data_preproc )
+function [ data_trial ] = CARE_getTrl( cfg, data_preproc )
 % CARE_GETTRL this function extracts trials specified through event markers 
 % from the continuous data stream.
 %
 % Use as
-%   [ data_trial ] = CARE_getTrl( data_preproc )
+%   [ data_trial ] = CARE_getTrl( cfg, data_preproc )
+%
+% The configurations options are
+%   cfg.prefix      = CARE or DCARE, defines raw data file prefix (default: CARE)
 %
 % where the input data has to be the result from CARE_PREPROCESSING
 %
@@ -12,16 +15,46 @@ function [ data_trial ] = CARE_getTrl( data_preproc )
 % Copyright (C) 2017-2018, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
-% General definitions
+% Get and check config options
 % -------------------------------------------------------------------------
-colCollaboration  = (data_preproc.sub1.eventMarkers == 11);
-colIndividual     = (data_preproc.sub1.eventMarkers == 12);
-colBaseline       = (data_preproc.sub1.eventMarkers == 13);
-colAll            = colCollaboration | colIndividual | colBaseline;
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
 
-durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
-durIndividual     = round(120 * data_preproc.sub1.fs - 1);                  % duration individual condition: 120 seconds 
-durBaseline       = round(80 * data_preproc.sub1.fs - 1);                   % duration baseline condition: 80 seconds 
+% -------------------------------------------------------------------------
+% Load general definitions
+% -------------------------------------------------------------------------
+filepath = fileparts(mfilename('fullpath'));
+load(sprintf(['%s/../general/', prefix, '_generalDefinitions.mat'], ...
+              filepath), 'generalDefinitions');
+
+% -------------------------------------------------------------------------
+% Basic variables
+% -------------------------------------------------------------------------
+colCollaboration  = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.collabMarker);
+colIndividual     = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.indivMarker);
+colBaseline       = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.baseMarker);
+colTalk           = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.talkMarker);
+colStop           = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.stopMarker);
+colPreschoolForm  = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.preschoolMarker);
+                                
+colAll            = colCollaboration | colIndividual | colBaseline | ...
+                    colTalk | colPreschoolForm;
+
+durCollaboration  = round(generalDefinitions.collabDur * ...                % duration collaboration condition
+                                  data_preproc.sub1.fs - 1);
+durIndividual     = round(generalDefinitions.indivDur * ...                 % duration individual condition
+                                  data_preproc.sub1.fs - 1);
+durBaseline       = round(generalDefinitions.baseDur * ...                  % duration baseline condition
+                                  data_preproc.sub1.fs - 1);
+durTalk           = round(generalDefinitions.talkDur * ...                  % duration talk condition
+                                  data_preproc.sub1.fs - 1);
+durPreschoolForm  = round(generalDefinitions.preschoolDur * ...             % duration preschool form condition
+                                  data_preproc.sub1.fs - 1);
 
 % -------------------------------------------------------------------------
 % Generate trialinfo and sampleinfo
@@ -31,6 +64,13 @@ sMatrix = data_preproc.sub1.s;
 evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);                 % get sample points of collaboration markers
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);                    % get sample points of individual markers
 evtBaseline       = find(sMatrix(:, colBaseline) > 0);                      % get sample points of baseline markers
+evtTalk           = find(sMatrix(:, colTalk) > 0);                          % get sample points of talk markers
+evtStop           = find(sMatrix(:, colStop) > 0);                          % get sample points of stop markers
+if ~isempty(evtStop)
+  sort(evtStop);
+end
+evtPreschoolForm  = find(sMatrix(:, colPreschoolForm) > 0);                 % get sample points of preschool form markers
+
 [evtAll, ~]       = find(sMatrix(:, colAll) > 0);                           % get sample points of all markers
 sampleinfo        = sort(evtAll);                                           % bring sample points in an ascending order
 sampleinfo(:,2)   = sampleinfo(:,1);                                          
@@ -38,14 +78,40 @@ trialinfo         = zeros(size(sampleinfo, 1), 1);
 
 for i=1:1:size(sampleinfo, 1)                                               % estimate end points of conditions  
   if ismember(sampleinfo(i,1), evtCollaboration)
-    sampleinfo(i,2) = sampleinfo(i,2) + durCollaboration;
-    trialinfo(i) = 11;
+    if isempty(evtStop)
+      sampleinfo(i,2) = sampleinfo(i,2) + durCollaboration;
+    else
+      sampleinfo(i,2) = evtStop(find(evtStop > sampleinfo(i,1), 1));
+    end
+    trialinfo(i) = generalDefinitions.collabMarker;
   elseif ismember(sampleinfo(i,1), evtIndividual)
-    sampleinfo(i,2) = sampleinfo(i,2) + durIndividual;
-    trialinfo(i) = 12;
+    if isempty(evtStop)
+      sampleinfo(i,2) = sampleinfo(i,2) + durIndividual;
+    else
+      sampleinfo(i,2) = evtStop(find(evtStop > sampleinfo(i,1), 1));
+    end
+    trialinfo(i) = generalDefinitions.indivMarker;
   elseif ismember(sampleinfo(i,1), evtBaseline)
-    sampleinfo(i,2) = sampleinfo(i,2) + durBaseline;
-    trialinfo(i) = 13;
+    if isempty(evtStop)
+      sampleinfo(i,2) = sampleinfo(i,2) + durBaseline;
+    else
+      sampleinfo(i,2) = evtStop(find(evtStop > sampleinfo(i,1), 1));
+    end
+    trialinfo(i) = generalDefinitions.baseMarker;
+  elseif ismember(sampleinfo(i,1), evtTalk)
+    if isempty(evtStop)
+      sampleinfo(i,2) = sampleinfo(i,2) + durTalk;
+    else
+      sampleinfo(i,2) = evtStop(find(evtStop > sampleinfo(i,1), 1));
+    end
+    trialinfo(i) = generalDefinitions.talkMarker;
+  elseif ismember(sampleinfo(i,1), evtPreschoolForm)
+    if isempty(evtStop)
+      sampleinfo(i,2) = sampleinfo(i,2) + durPreschoolForm;
+    else
+      sampleinfo(i,2) = evtStop(find(evtStop > sampleinfo(i,1), 1));
+    end
+    trialinfo(i) = generalDefinitions.preschoolMarker;
   end
 end
 
