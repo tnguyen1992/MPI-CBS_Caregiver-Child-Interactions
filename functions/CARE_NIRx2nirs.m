@@ -107,18 +107,18 @@ end
 fprintf('<strong>Converting data from NIRx to NIRS for dyad %d, subject 1...</strong>\n',...
         dyadNum);
 convertData(Sub1DesFile, Sub1_wl1File, Sub1_wl2File, Sub1_hdrFile, SD,...
-            dyadNum);
+            prefix, dyadNum);
 fprintf('<strong>Converting data from NIRx to NIRS for dyad %d, subject 2...</strong>\n',...
         dyadNum);
 convertData(Sub2DesFile, Sub2_wl1File, Sub2_wl2File, Sub2_hdrFile, SD,...
-            dyadNum);
+            prefix, dyadNum);
 
 end
 
 % -------------------------------------------------------------------------
 % SUBFUNCTION data convertion
 % -------------------------------------------------------------------------
-function convertData (desFile, wl1File, wl2File, hdrFile, SD, num)
+function convertData (desFile, wl1File, wl2File, hdrFile, SD, pf, num)
 wl1 = load(wl1File);                                                        % load .wl1 file
 wl2 = load(wl2File);                                                        % load .wl2 file
 
@@ -130,11 +130,11 @@ hdr_str = tmp{1};
 fclose(fid);
 
 keyword = 'Sources=';                                                       % find number of sources
-tmp = hdr_str{contains(hdr_str, keyword)};
+tmp = hdr_str{strncmp(hdr_str, keyword, length(keyword))};
 NIRxSources = str2double(tmp(length(keyword)+1:end));
 
 keyword = 'Detectors=';                                                     % find number of detectors
-tmp = hdr_str{contains(hdr_str, keyword)};
+tmp = hdr_str{strncmp(hdr_str, keyword, length(keyword))};
 NIRxDetectors = str2double(tmp(length(keyword)+1:end));
 
 if NIRxSources < SD.nSrcs || NIRxDetectors < SD.nDets                       % Compare number of sources and detectors to SD file
@@ -142,13 +142,13 @@ if NIRxSources < SD.nSrcs || NIRxDetectors < SD.nDets                       % Co
 end
 
 keyword = 'SamplingRate=';                                                  % find Sample rate
-tmp = hdr_str{contains(hdr_str, keyword)};
+tmp = hdr_str{strncmp(hdr_str, keyword, 13)};
 fs = str2double(tmp(length(keyword)+1:end));
 
 % find Active Source-Detector pairs
 keyword = 'S-D-Mask="#';
-ind = find(contains(hdr_str,keyword)) + 1 ;                                
-ind2 = find(contains(hdr_str(ind+1:end),'#')) - 1;
+ind = find(strncmp(hdr_str, keyword, length(keyword))) + 1;
+ind2 = find(strncmp(hdr_str(ind+1:end), '#', 1)) - 1;
 ind2 = ind + ind2(1);
 sd_ind = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 sd_ind = sd_ind';
@@ -164,13 +164,15 @@ end
 
 % find event markers and build s vector
 keyword = 'Events="#';
-ind = find(contains(hdr_str,keyword)) + 1 ;                                
-ind2 = find(contains(hdr_str(ind+1:end),'#')) - 1;
+ind = find(strncmp(hdr_str, keyword, length(keyword))) + 1;
+ind2 = find(strncmp(hdr_str(ind+1:end), '#', 1)) - 1;
 ind2 = ind + ind2(1);
 events = cell2mat(cellfun(@str2num, hdr_str(ind:ind2), 'UniformOutput', 0));
 events = events(:,2:3);
-if num < 7                                                                  %  correction of markers for dyads until number 6
-  events = correctEvents( events );
+if strcmp(pf, 'CARE')
+  if num < 7                                                                  %  correction of markers for dyads until number 6
+    events = correctEvents( events );
+  end
 end
 markertypes = unique(events(:,1));
 s = zeros(length(d),length(markertypes));
