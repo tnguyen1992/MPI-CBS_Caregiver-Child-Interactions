@@ -9,16 +9,18 @@ function CARE_easyBetaMap( cfg, data )
 % where the input data has to be a result of CARE_GLM.
 %
 % The configuration options are
+%   cfg.prefix    = CARE or DCARE, defines raw data file prefix (default: CARE)
 %   cfg.subject   = number of subject (1 or 2, default: 1)
-%   cfg.condition = condition value (default: 13 or 'Baseline', see CARE_DATASTRUCTURE)
+%   cfg.condition = condition value, could be string or numeric (default: 'Baseline', see CARE_DATASTRUCTURE)
 %
 % See also CARE_GLM, CARE_CHECKCONDITION and CARE_DATASTRUCTURE
 
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
 subject     = ft_getopt(cfg, 'subject', 1);
-condition   = ft_getopt(cfg, 'condition', 13);
+condition   = ft_getopt(cfg, 'condition', 'Baseline');
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
@@ -33,7 +35,7 @@ elseif subject == 2
   data = data.sub2;
 end
 
-condition    = CARE_checkCondition( condition );                            % check cfg.condition definition
+condition    = CARE_checkCondition( prefix, condition );                    % check cfg.condition definition
 if ~any(ismember(data.eventMarkers, condition))
   error('The selected dataset contains no parameter %d.', condition);
 else

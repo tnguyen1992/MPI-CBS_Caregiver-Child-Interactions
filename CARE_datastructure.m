@@ -9,4 +9,15 @@
 % - Indiv-Base        - 1213
 % - Collab-Indiv      - 1112
 
-% Copyright (C) 2017, Daniel Matthes, MPI CBS
+% DCARE_DATASTRUCTURE
+%
+% - Collaboration     - 1
+% - Individual        - 2
+% - Baseline          - 3
+% - PreschoolForm     - 7
+%
+% - Collab-Base       - 13
+% - Indiv-Base        - 23
+% - Collab-Indiv      - 12
+
+% Copyright (C) 2017-2018, Daniel Matthes, MPI CBS

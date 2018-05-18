@@ -9,9 +9,9 @@ function CARE_easyCohPlot(cfg, data)
 % where the input data has to be a result of CARE_WTC.
 %
 % The configuration options are 
-%   cfg.channel       = number of channel (1 to 16) (default: 1)
-%   cfg.considerCOI   = true or false, if true the values below the cone of
-%                       interest will be set to NaN
+%   cfg.channel     = number of channel (1 to 16) (default: 1)
+%   cfg.considerCOI = true or false, if true the values below the cone of
+%                     interest will be set to NaN
 %
 % See also CARE_WTC
 
@@ -33,13 +33,23 @@ t = data.t;                                                                 % ex
 eventC = t(data.cfg.evtCollaboration);                                      % extract event markers of collaboration condition
 eventI = t(data.cfg.evtIndividual);                                         % extract event markers of individual condition
 eventR = t(data.cfg.evtRest);                                               % extract event markers of resting condition
-eventT = t(data.cfg.evtTalk);                                               % extract event markers of conversation condition    
+eventT = t(data.cfg.evtTalk);                                               % extract event markers of conversation condition
+eventS = t(data.cfg.evtStop);                                               % extract stop markers
+eventP = t(data.cfg.evtPreschoolForm);                                      % extract event markers of preschool from condition
 
 durC = t(data.cfg.durCollaboration + 1);                                    % extract duration of collaboration condition
 durI = t(data.cfg.durIndividual + 1);                                       % extract duration of individual condition
 durR = t(data.cfg.durRest + 1);                                             % extract duration of resting condition
-durT = t(data.cfg.durTalk + 1);                                             % extract duration of conversation condition
-
+if data.cfg.durTalk > 0
+  durT = t(data.cfg.durTalk + 1);                                           % extract duration of conversation condition
+else
+  durT = [];
+end
+if data.cfg.durPreschoolForm > 0
+  durP = t(data.cfg.durPreschoolForm + 1);                                  % extract duration of preschool form condition
+else
+  durP = [];
+end
 % -------------------------------------------------------------------------
 % Create coherence plot
 % -------------------------------------------------------------------------
@@ -81,8 +91,13 @@ ty0       = 0.086 * (y(2) - y(1)) + y(1);
 for i=1:1:length(eventC)
   x = [eventC(i) eventC(i)];
   line(x, y, 'Color', 'black');                                             % start of i-th collaboration condition
-  line(x+durC, y, 'Color', 'black');                                        % end of i-th collaboration condition
-  rectangle('Position', [eventC(i) recty0 durC 0.42], ....                  % create rectangle for condition label
+  if isempty(eventS)
+    timePeriod = durC;
+  else
+    timePeriod = eventS(find(eventS > eventC(i), 1)) - eventC(i);
+  end
+  line(x+timePeriod, y, 'Color', 'black');                                  % end of i-th collaboration condition
+  rectangle('Position', [eventC(i) recty0 timePeriod 0.42], ....            % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventC(i) + txOffset, ty0, sprintf('Collab %d', i));                 % create condition label
 end
@@ -90,8 +105,13 @@ end
 for i=1:1:length(eventI)
   x = [eventI(i) eventI(i)];
   line(x, y, 'Color', 'black');                                             % start of i-th individual condition
-  line(x+durI, y, 'Color', 'black');                                        % end of i-th individual condition
-  rectangle('Position', [eventI(i) recty0 durI 0.42], ...                   % create rectangle for condition label
+  if isempty(eventS)
+    timePeriod = durI;
+  else
+    timePeriod = eventS(find(eventS > eventI(i), 1)) - eventI(i);
+  end
+  line(x+timePeriod, y, 'Color', 'black');                                  % end of i-th individual condition
+  rectangle('Position', [eventI(i) recty0 timePeriod 0.42], ...             % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventI(i) + txOffset, ty0, sprintf('Indiv %d', i));                  % create condition label
 end
@@ -99,8 +119,13 @@ end
 for i=1:1:length(eventR)
   x = [eventR(i) eventR(i)];
   line(x, y, 'Color', 'black');                                             % start of i-th resting condition
-  line(x+durR, y, 'Color', 'black');                                        % end of i-th resting condition
-  rectangle('Position', [eventR(i) recty0 durR 0.42], ....                  % create rectangle for condition label
+  if isempty(eventS)
+    timePeriod = durR;
+  else
+    timePeriod = eventS(find(eventS > eventR(i), 1)) - eventR(i);
+  end
+  line(x+timePeriod, y, 'Color', 'black');                                  % end of i-th resting condition
+  rectangle('Position', [eventR(i) recty0 timePeriod 0.42], ....            % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventR(i) + txOffset, ty0, sprintf('Rest %d', i));                   % create condition label
 end
@@ -108,10 +133,29 @@ end
 for i=1:1:length(eventT)
   x = [eventT(i) eventT(i)];
   line(x, y, 'Color', 'black');                                             % start of i-th resting condition
-  line(x+durT, y, 'Color', 'black');                                        % end of i-th resting condition
-  rectangle('Position', [eventT(i) recty0 durT 0.42], ....                  % create rectangle for condition label
+  if isempty(eventS)
+    timePeriod = durT;
+  else
+    timePeriod = eventS(find(eventS > eventT(i), 1)) - eventT(i);
+  end
+  line(x+timePeriod, y, 'Color', 'black');                                  % end of i-th resting condition
+  rectangle('Position', [eventT(i) recty0 timePeriod 0.42], ....            % create rectangle for condition label
             'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
   text(eventT(i) + txOffset, ty0, sprintf('Conver %d', i));                 % create condition label
+end
+
+for i=1:1:length(eventP)
+  x = [eventP(i) eventP(i)];
+  line(x, y, 'Color', 'black');                                             % start of i-th resting condition
+  if isempty(eventS)
+    timePeriod = durP;
+  else
+    timePeriod = eventS(find(eventS > eventP(i), 1)) - eventP(i);
+  end
+  line(x+timePeriod, y, 'Color', 'black');                                  % end of i-th resting condition
+  rectangle('Position', [eventP(i) recty0 timePeriod 0.42], ....            % create rectangle for condition label
+            'FaceColor',[1 0.95 0.87], 'EdgeColor', [0.1 0.1 0.1]);
+  text(eventP(i) + txOffset, ty0, sprintf('Preschool %d', i));              % create condition label
 end
 
 end

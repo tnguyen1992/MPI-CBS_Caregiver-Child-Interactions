@@ -9,19 +9,21 @@ function CARE_easyCohMap( cfg, data )
 % where the input data has to be a result of CARE_WTC.
 %
 % The configuration options are
-%   cfg.condition = condition value (default: 1113 or 'Collab-Base', see CARE_DATASTRUCTURE)
+%   cfg.prefix    = CARE or DCARE, defines raw data file prefix (default: CARE)
+%   cfg.condition = condition value, could be string or numeric (default: 'Collab-Base', see CARE_DATASTRUCTURE)
 %
 % See also CARE_WTC, CARE_CHECKCONDITION and CARE_DATASTRUCTURE
 
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-condition   = ft_getopt(cfg, 'condition', 1113);
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
+condition   = ft_getopt(cfg, 'condition', 'Collab-Base');
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
 
-condition    = CARE_checkCondition( condition );                            % check cfg.condition definition
+condition    = CARE_checkCondition( prefix, condition );                    % check cfg.condition definition
 if ~any(ismember(data.params, condition))
   error('The selected dataset contains no condition %d.', condition);
 else
