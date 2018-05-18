@@ -45,6 +45,7 @@ fprintf('\n');
 
 if avgOverDyads == true
   cfg = [];
+  cfg.prefix = prefix;
   cfg.path = strcat(desPath, '03_glm/');
   cfg.session = str2double(sessionStr);
 
@@ -87,6 +88,7 @@ fprintf('\n');
 
 if avgOverDyads == true
   cfg = [];
+  cfg.prefix = prefix;
   cfg.path = strcat(desPath, '05a_wtc/');
   cfg.session = str2double(sessionStr);
 

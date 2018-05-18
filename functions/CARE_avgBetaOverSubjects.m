@@ -6,31 +6,33 @@ function [ data ] = CARE_avgBetaOverSubjects( cfg )
 %   [ data ] = CARE_avgBetaOverSubjects( cfg )
 %
 % The configuration options are
+%   cfg.prefix    = CARE or DCARE, defines raw data file prefix (default: CARE)
 %   cfg.path      = source path' (i.e. '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/03_glm/')
 %   cfg.session   = session number (default: 1)
 %
 % See also CARE_GLM
 
-% Copyright (C) 2017, Daniel Matthes, MPI CBS 
+% Copyright (C) 2017-2018, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-path      = ft_getopt(cfg, 'path', ...
+prefix  = CARE_getopt(cfg, 'prefix', 'CARE');
+path    = ft_getopt(cfg, 'path', ...
               '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/03_glm/');
             
-session   = ft_getopt(cfg, 'session', 1);
+session = ft_getopt(cfg, 'session', 1);
 
 % -------------------------------------------------------------------------
 % Select dyads
 % -------------------------------------------------------------------------
-dyadsList   = dir([path, sprintf('CARE_d*_03_glm_%03d.mat', session)]);
+dyadsList   = dir([path, sprintf([prefix, '_d*_03_glm_%03d.mat'], session)]);
 dyadsList   = struct2cell(dyadsList);
 dyadsList   = dyadsList(1,:);
 numOfDyads  = length(dyadsList);
 
 for i=1:1:numOfDyads
-  listOfDyads(i) = sscanf(dyadsList{i}, ['CARE_d%d_03_glm_'...
+  listOfDyads(i) = sscanf(dyadsList{i}, [prefix, '_d%d_03_glm_', ...
                                    sprintf('%03d.mat', session)]);          %#ok<AGROW>
 end
 
@@ -57,7 +59,7 @@ caregiverBeta = zeros(16, 3, numOfDyads);
 childBeta = zeros(16, 3, numOfDyads);
 
 for i=1:1:length(listOfDyads)
-  filename = sprintf('CARE_d%02d_03_glm_%03d.mat', listOfDyads(i), ...
+  filename = sprintf([prefix, '_d%02d_03_glm_%03d.mat'], listOfDyads(i), ...
                     session);
   file = strcat(path, filename);
   fprintf('Load %s ...\n', filename);
