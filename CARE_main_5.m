@@ -145,6 +145,7 @@ for i = numOfPart
   
   % estimate wavelet coherence
   cfg = [];
+  cfg.prefix       = prefix;
   cfg.poi          = poi; 
   cfg.considerCOI  = considerCOI;
   
@@ -183,6 +184,7 @@ for i = numOfPart
   
   % estimate wavelet coherence
   cfg = [];
+  cfg.prefix       = prefix;
   cfg.poi          = poi;
   
   data_msc = CARE_msc(cfg, data_trial);

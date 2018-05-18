@@ -8,9 +8,10 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % where the input data has to be the result from CARE_PREPROCESSING
 %
 % The configuration options are
-%   cfg.poi           = period of interest in seconds (default: [23 100])
-%   cfg.considerCOI   = true or false, if true the values below the cone of
-%                       interest will be set to NaN
+%   cfg.prefix      = CARE or DCARE, defines raw data file prefix (default: CARE)
+%   cfg.poi         = period of interest in seconds (default: [23 100])
+%   cfg.considerCOI = true or false, if true the values below the cone of
+%                     interest will be set to NaN
 %
 % SEE also CARE_PREPROCESSING, WTC
 
@@ -19,28 +20,51 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-poi           = CARE_getopt(cfg, 'poi', [23 100]);
-considerCOI   = CARE_getopt(cfg, 'considerCOI', true);
+prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
+poi         = CARE_getopt(cfg, 'poi', [23 100]);
+considerCOI = CARE_getopt(cfg, 'considerCOI', true);
 
 if ~isequal(length(poi), 2)
   error('cfg.poi has wrong size. Define cfg.poi = [begin end]');  
 end
 
 % -------------------------------------------------------------------------
-% General definitions
+% Load general definitions
+% -------------------------------------------------------------------------
+filepath = fileparts(mfilename('fullpath'));
+load(sprintf(['%s/../general/', prefix, '_generalDefinitions.mat'], ...
+              filepath), 'generalDefinitions');
+
+% -------------------------------------------------------------------------
+% Basic variable
 % Determine events
 % -------------------------------------------------------------------------
-colCollaboration  = (data_preproc.sub1.eventMarkers == 11);
-colIndividual     = (data_preproc.sub1.eventMarkers == 12);
-colBaseline       = (data_preproc.sub1.eventMarkers == 13);
-colTalk           = (data_preproc.sub1.eventMarkers == 14);
+colCollaboration  = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.collabMarker);
+colIndividual     = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.indivMarker);
+colBaseline       = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.baseMarker);
+colTalk           = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.talkMarker);
+colStop           = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.stopMarker);
+colPreschoolForm  = (data_preproc.sub1.eventMarkers == ...
+                                  generalDefinitions.preschoolMarker);
+
 colAll            = colCollaboration | colIndividual | colBaseline;
 
 % define Duration of conditions
-durCollaboration  = round(120 * data_preproc.sub1.fs - 1);                  % duration collaboration condition: 120 seconds      
-durIndividual     = round(120 * data_preproc.sub1.fs - 1);                  % duration individual condition: 120 seconds 
-durBaseline       = round(80 * data_preproc.sub1.fs - 1);                   % duration baseline condition: 80 seconds 
-durTalk           = round(240 * data_preproc.sub1.fs - 1);                  % duration talk condition: 240 seconds (currently only used for plotting purpose)     
+durCollaboration  = round(generalDefinitions.collabDur * ...                % duration collaboration condition
+                                  data_preproc.sub1.fs - 1);
+durIndividual     = round(generalDefinitions.indivDur * ...                 % duration individual condition
+                                  data_preproc.sub1.fs - 1);
+durBaseline       = round(generalDefinitions.baseDur * ...                  % duration baseline condition
+                                  data_preproc.sub1.fs - 1);
+durTalk           = round(generalDefinitions.talkDur * ...                  % duration talk condition (currently only used for plotting purpose)
+                                  data_preproc.sub1.fs - 1);
+durPreschoolForm  = round(generalDefinitions.preschoolDur * ...             % duration preschool form condition (currently only used for plotting purpose)
+                                  data_preproc.sub1.fs - 1);
 
 % determine sample points when events occur (start of condition)
 sMatrix = data_preproc.sub1.s;
@@ -49,6 +73,11 @@ evtCollaboration  = find(sMatrix(:, colCollaboration) > 0);
 evtIndividual     = find(sMatrix(:, colIndividual) > 0);
 evtBaseline       = find(sMatrix(:, colBaseline) > 0);
 evtTalk           = find(sMatrix(:, colTalk) > 0);                          % currently only used for plotting purpose (See CARE_easyCohPlot)
+evtStop           = find(sMatrix(:, colStop) > 0);
+if ~isempty(evtStop)
+  sort(evtStop);
+end
+evtPreschoolForm  = find(sMatrix(:, colPreschoolForm) > 0);                 % currently only used for plotting purpose (See CARE_easyCohPlot)
 
 % remove unused events
 eventMarkers      = data_preproc.sub1.eventMarkers(colAll);
@@ -116,23 +145,41 @@ for i=1:1:numOfChan
     % calculate mean activation in frequency band of interest
     % collaboration condition
     for j=1:1:length(evtCollaboration)
-      meanCohCollab(j)  = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
-                          evtCollaboration(j):evtCollaboration(j) + ...
-                          durCollaboration)));
+      if isempty(evtStop)
+        meanCohCollab(j)  = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtCollaboration(j):evtCollaboration(j) + ...
+                            durCollaboration)));
+      else
+        meanCohCollab(j)  = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtCollaboration(j):evtStop(find(evtStop > ...
+                            evtCollaboration(j), 1)))));
+      end
     end
  
     % individual condition
     for j=1:1:length(evtIndividual)
-      meanCohIndiv(j)   = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
-                          evtIndividual(j):evtIndividual(j) + ...
-                          durIndividual)));
+      if isempty(evtStop)
+        meanCohIndiv(j)   = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtIndividual(j):evtIndividual(j) + ...
+                            durIndividual)));
+      else
+        meanCohIndiv(j)   = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtIndividual(j):evtStop(find(evtStop > ...
+                            evtIndividual(j), 1)))));
+      end
     end
  
     % baseline
     for j=1:1:length(evtBaseline)
-      meanCohBase(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
-                          evtBaseline(j):evtBaseline(j) + ...
-                          durBaseline)));
+      if isempty(evtStop)
+        meanCohBase(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtBaseline(j):evtBaseline(j) + ...
+                            durBaseline)));
+      else
+        meanCohBase(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtBaseline(j):evtStop(find(evtStop > ...
+                            evtBaseline(j), 1)))));
+      end
     end
 
     collaboration  = nanmean(meanCohCollab);                                % average mean coherences over trials
@@ -153,7 +200,18 @@ end
 % put results into the output data structure
 data_wtc.coherences           = coherences;
 data_wtc.Rsq                  = Rsq;
-data_wtc.params               = [11, 12, 13, 1113, 1213, 1112];
+data_wtc.params               = [generalDefinitions.collabMarker, ...
+                                 generalDefinitions.indivMarker, ...
+                                 generalDefinitions.baseMarker, ...
+                                 str2double([...
+                                 num2str(generalDefinitions.collabMarker) ...
+                                 num2str(generalDefinitions.baseMarker)]), ...
+                                 str2double([...
+                                 num2str(generalDefinitions.indivMarker) ...
+                                 num2str(generalDefinitions.baseMarker)]), ...
+                                 str2double([...
+                                 num2str(generalDefinitions.collabMarker) ...
+                                 num2str(generalDefinitions.indivMarker)])];
 data_wtc.paramStrings         = {'Collaboration', 'Individual', ...         % this field describes the columns of the coherences field
                                  'Baseline', 'Collab-Base', ...
                                  'Indiv-Base', 'Collab-Indiv'};
@@ -169,9 +227,12 @@ data_wtc.cfg.evtCollaboration = evtCollaboration;
 data_wtc.cfg.evtIndividual    = evtIndividual;
 data_wtc.cfg.evtRest          = evtBaseline;
 data_wtc.cfg.evtTalk          = evtTalk;
+data_wtc.cfg.evtStop          = evtStop;
+data_wtc.cfg.evtPreschoolForm = evtPreschoolForm;
 data_wtc.cfg.durCollaboration = durCollaboration;
 data_wtc.cfg.durIndividual    = durIndividual;
 data_wtc.cfg.durRest          = durBaseline;
 data_wtc.cfg.durTalk          = durTalk;
+data_wtc.cfg.durPreschoolForm = durPreschoolForm;
 
 end

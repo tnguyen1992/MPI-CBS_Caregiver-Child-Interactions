@@ -8,6 +8,7 @@ function [ data_msc ] = CARE_msc( cfg, data_trial )
 % where the input data has to be the result from CARE_GETTRL
 %
 % The configuration options are
+%   cfg.prefix  = CARE or DCARE, defines raw data file prefix (default: CARE) 
 %   cfg.window  = window length in seconds (default: 30)
 %   cfg.overlap = percentage of overlapping (default: 50)
 %   cfg.poi     = period of interest in seconds (default: [23 100])
@@ -19,9 +20,10 @@ function [ data_msc ] = CARE_msc( cfg, data_trial )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
+prefix  = CARE_getopt(cfg, 'prefix', 'CARE');
 window  = CARE_getopt(cfg, 'window', 30);
 overlap = CARE_getopt(cfg, 'overlap', 50);
-poi      = CARE_getopt(cfg, 'poi', [23 100]);
+poi     = CARE_getopt(cfg, 'poi', [23 100]);
 
 minTrialLength = min(cellfun(@(x) size(x,1), data_trial.sub1.trial));
 
@@ -36,6 +38,13 @@ end
 if ~isequal(length(poi), 2)
   error('cfg.poi has wrong size. Define cfg.poi = [begin end]');  
 end
+
+% -------------------------------------------------------------------------
+% Load general definitions
+% -------------------------------------------------------------------------
+filepath = fileparts(mfilename('fullpath'));
+load(sprintf(['%s/../general/', prefix, '_generalDefinitions.mat'], ...
+              filepath), 'generalDefinitions');
 
 % -------------------------------------------------------------------------
 % Estimate general magnitude-squared coherence settings
@@ -98,7 +107,9 @@ end
 cxy = cat(1, cxy{:})';                                                      % put all trials in on matrix, rows = channels, columns = trials
 
 trialinfo           = data_trial.sub1.trialinfo;                            % extract trialinfo from source data
-conditions          = unique(trialinfo);                                    % determine unique conditions
+conditions          = [generalDefinitions.collabMarker ...                  % conditions of interest
+                       generalDefinitions.indivMarker ...
+                       generalDefinitions.baseMarker];
 numOfCond           = length(conditions);                                   % determine number of conditions
 data_msc.coherences = zeros(numOfChan, numOfCond*2);                        % allocate memory for the result of averaging over conditions
 
@@ -121,7 +132,18 @@ data_msc.dimord       = 'rpt_freq_chan';                                    % de
 data_msc.label        = data_trial.sub1.label;
 data_msc.trialinfo    = data_trial.sub1.trialinfo;
 data_msc.fsample      = data_trial.sub1.fsample;
-data_msc.params       = [11, 12, 13, 1113, 1213, 1112];
+data_msc.params       = [generalDefinitions.collabMarker, ...
+                         generalDefinitions.indivMarker, ...
+                         generalDefinitions.baseMarker, ...
+                         str2double([...
+                         num2str(generalDefinitions.collabMarker) ...
+                         num2str(generalDefinitions.baseMarker)]), ...
+                         str2double([...
+                         num2str(generalDefinitions.indivMarker) ...
+                         num2str(generalDefinitions.baseMarker)]), ...
+                         str2double([...
+                         num2str(generalDefinitions.collabMarker) ...
+                         num2str(generalDefinitions.indivMarker)])];
 data_msc.paramStrings = {'Collaboration', 'Individual', ...                 % this field describes the columns of the coherences field
                          'Baseline', 'Collab-Base', ...
                          'Indiv-Base', 'Collab-Indiv'};
