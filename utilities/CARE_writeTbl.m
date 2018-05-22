@@ -20,11 +20,11 @@ function CARE_writeTbl(cfg, data)
 % -------------------------------------------------------------------------
 % Get config options
 % -------------------------------------------------------------------------
-desFolder   = ft_getopt(cfg, 'desFolder', ...
+desFolder   = CARE_getopt(cfg, 'desFolder', ...
           '/data/pt_01867/fnirsData/DualfNIRS_CARE_processedData/00_settings/');
-dyad        = ft_getopt(cfg, 'dyad', []);
-type        = ft_getopt(cfg, 'type', []);
-sessionStr  = ft_getopt(cfg, 'sessionStr', []);
+dyad        = CARE_getopt(cfg, 'dyad', []);
+type        = CARE_getopt(cfg, 'type', []);
+sessionStr  = CARE_getopt(cfg, 'sessionStr', []);
 
 if isempty(dyad)
   error('cfg.dyad has to be specified');
