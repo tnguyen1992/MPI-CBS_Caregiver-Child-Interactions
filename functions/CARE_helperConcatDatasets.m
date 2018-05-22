@@ -110,7 +110,7 @@ for i = 1:1:2
   d1Length = length(t1);                                                    % estimate the data length of the first half
     
   d = [d1; d2];                                                             % concatenate the data matrices
-  t2(:) = t2(:) + t1(d1Length) + t1(1);                                     % add the duration of first half to the timestamps of the second half
+  t2(:) = t2(:) + t1(d1Length) + t1(2);                                     % add the duration of first half to the timestamps of the second half
   t = [t1; t2];                                                             % concatenate the time vectors
   aux = [aux1; aux2];                                                       %#ok<NASGU> % concatenate the aux matricies
   
