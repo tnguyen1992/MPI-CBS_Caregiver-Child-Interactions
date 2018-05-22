@@ -168,6 +168,24 @@ for i = numOfPart
 
   data_preproc = CARE_preprocessing(cfg, data_raw);
   
+  % export results of quality checks into accociated spreadsheets
+  if strcmp(XuCuiCfg, 'yes')
+    cfg           = [];
+    cfg.desFolder = [desPath '00_settings/'];
+    cfg.dyad = i;
+    cfg.type = 'XuCuiQC';
+    cfg.sessionStr = sessionStr;
+    CARE_writeTbl(cfg, data_preproc);
+  end
+  if strcmp(pulseCfg, 'yes')
+    cfg           = [];
+    cfg.desFolder = [desPath '00_settings/'];
+    cfg.dyad = i;
+    cfg.type = 'pulseQC';
+    cfg.sessionStr = sessionStr;
+    CARE_writeTbl(cfg, data_preproc);
+  end
+  
   % save preprocessed data
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '02a_preproc/');
