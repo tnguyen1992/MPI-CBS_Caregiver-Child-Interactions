@@ -56,6 +56,8 @@ durTalk           = round(generalDefinitions.talkDur * ...                  % du
 durPreschoolForm  = round(generalDefinitions.preschoolDur * ...             % duration preschool form condition
                                   data_preproc.sub1.fs - 1);
 
+numOfSample       = length(data_preproc.sub1.t);                                 
+                                
 % -------------------------------------------------------------------------
 % Generate trialinfo and sampleinfo
 % -------------------------------------------------------------------------
@@ -114,6 +116,8 @@ for i=1:1:size(sampleinfo, 1)                                               % es
     trialinfo(i) = generalDefinitions.preschoolMarker;
   end
 end
+
+sampleinfo(sampleinfo(:,2) > numOfSample, 2) = numOfSample;                 % correct sampleinfo if not enough samples are collected    
 
 % -------------------------------------------------------------------------
 % Extract trials from continuous data stream
