@@ -80,11 +80,16 @@ end
 % Update table
 % -------------------------------------------------------------------------
 T = readtable(file_path);
+
+lastRow = max(T.dyad);
+if (lastRow + 1) < dyad
+  emptyRows       = (lastRow+1):1:(dyad-1);
+  emptyContent    = num2cell([emptyRows' NaN*ones(length(emptyRows),32)]);
+  T(emptyRows, :) = emptyContent;
+end
+T(dyad, :)  = num2cell([dyad badChan_1 badChan_2]);
+
 delete(file_path);
-warning off;
-T.dyad(dyad)    = dyad;
-T(dyad, 2:end)  = num2cell([badChan_1 badChan_2]);
-warning on;
 writetable(T, file_path);
 
 end
