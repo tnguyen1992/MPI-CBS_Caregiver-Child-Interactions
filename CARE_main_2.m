@@ -97,9 +97,9 @@ end
 
 T = readtable(file_path);                                                   % update settings table
 warning off;
-T.dyad(numOfPart)     = numOfPart;
-T.XuCuiQC(numOfPart)  = { XuCui };
-T.pulseQC(numOfPart)  = { pulse };
+T.dyad(numOfPart, 1)     = numOfPart;
+T.XuCuiQC(numOfPart, 1)  = { XuCui };
+T.pulseQC(numOfPart, 1)  = { pulse };
 warning on;
 delete(file_path);
 writetable(T, file_path);
