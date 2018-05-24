@@ -123,8 +123,8 @@ end
 
 T = readtable(file_path);                                                   % update settings table
 warning off;
-T.CohPOI(numOfPart)   = {vec2str(poi, [], [], 1)};
-T.ConsCOI(numOfPart)  = { x };
+T.CohPOI(numOfPart, 1)   = {vec2str(poi, [], [], 1)};
+T.ConsCOI(numOfPart, 1)  = { x };
 warning on;
 delete(file_path);
 writetable(T, file_path);
