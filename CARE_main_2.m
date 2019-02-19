@@ -48,23 +48,23 @@ end
 cprintf([0,0.6,0], '<strong>[2] - Data preprocessing</strong>\n');
 fprintf('\n');
 
-selection = false;
-while selection == false
-  cprintf([0,0.6,0], 'Do you want to apply the data quality check of Xu Cui?\n');
-  x = input('Select [y/n]: ','s');
-  if strcmp('y', x)
-    selection = true;
-    XuCui = x;
-    XuCuiCfg = 'yes';
-  elseif strcmp('n', x)
-    selection = true;
-    XuCui = x;
-    XuCuiCfg = 'no';
-  else
-    selection = false;
-  end
-end
-fprintf('\n');
+%selection = false;
+%while selection == false
+%  cprintf([0,0.6,0], 'Do you want to apply the data quality check of Xu Cui?\n');
+%  x = input('Select [y/n]: ','s');
+%  if strcmp('y', x)
+%    selection = true;
+%    XuCui = x;
+%    XuCuiCfg = 'yes';
+%  elseif strcmp('n', x)
+%    selection = true;
+%    XuCui = x;
+%    XuCuiCfg = 'no';
+%  else
+%    selection = false;
+%  end
+%end
+%fprintf('\n');
 
 selection = false;
 while selection == false
@@ -78,6 +78,42 @@ while selection == false
     selection = true;
     pulse = x;
     pulseCfg = 'no';
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'Do you want to apply spline-interpolation motion correction?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    splinemc = x;
+    splinemcCfg = 'yes';
+  elseif strcmp('n', x)
+    selection = true;
+    splinemc = x;
+    splinemcCfg = 'no';
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'Do you want to apply the visual pulse quality check?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    waveletmc = x;
+    waveletmcCfg = 'yes';
+  elseif strcmp('n', x)
+    selection = true;
+    waveletmc = x;
+    waveletmcCfg = 'no';
   else
     selection = false;
   end
@@ -98,7 +134,7 @@ end
 T = readtable(file_path);                                                   % update settings table
 warning off;
 T.dyad(numOfPart, 1)     = numOfPart;
-T.XuCuiQC(numOfPart, 1)  = { XuCui };
+%T.XuCuiQC(numOfPart, 1)  = { XuCui };
 T.pulseQC(numOfPart, 1)  = { pulse };
 warning on;
 delete(file_path);
@@ -163,20 +199,22 @@ for i = numOfPart
   
   % preprocess raw data of both subjects
   cfg = [];
-  cfg.XuQualityCheck    = XuCuiCfg;
+ %cfg.XuQualityCheck    = XuCuiCfg;
   cfg.pulseQualityCheck = pulseCfg;
+  cfg.splineMotionCorrection = splinemcCfg;
+  cfg.waveletMotionCorrection = waveletmcCfg;
 
   data_preproc = CARE_preprocessing(cfg, data_raw);
   
   % export results of quality checks into accociated spreadsheets
-  if strcmp(XuCuiCfg, 'yes')
-    cfg           = [];
-    cfg.desFolder = [desPath '00_settings/'];
-    cfg.dyad = i;
-    cfg.type = 'XuCuiQC';
-    cfg.sessionStr = sessionStr;
-    CARE_writeTbl(cfg, data_preproc);
-  end
+%  if strcmp(XuCuiCfg, 'yes')
+%    cfg           = [];
+%    cfg.desFolder = [desPath '00_settings/'];
+%    cfg.dyad = i;
+%    cfg.type = 'XuCuiQC';
+%    cfg.sessionStr = sessionStr;
+%    CARE_writeTbl(cfg, data_preproc);
+%  end
   if strcmp(pulseCfg, 'yes')
     cfg           = [];
     cfg.desFolder = [desPath '00_settings/'];
@@ -225,4 +263,4 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg i file_path XuCui XuCuiCfg pulse pulseCfg T
+clear cfg i file_path XuCui XuCuiCfg pulse pulseCfg T splinemc splinemcCfg waveletmc waveletmcCfg

@@ -29,8 +29,10 @@ function [data] = CARE_preprocessing( cfg, data )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-cfg.XuCuiQualityCheck = CARE_getopt(cfg, 'XuCuiQualityCheck', 'no');
+%cfg.XuCuiQualityCheck = CARE_getopt(cfg, 'XuCuiQualityCheck', 'no');
 cfg.pulseQualityCheck = CARE_getopt(cfg, 'pulseQualityCheck', 'yes');
+cfg.splineMotionCorrection = CARE_getopt(cfg, 'splineMotionCorrection', 'yes');
+cfg.waveletMotionCorrection = CARE_getopt(cfg, 'waveletMotionCorrection', 'no');
 
 % -------------------------------------------------------------------------
 % Preprocessing
@@ -55,25 +57,16 @@ data.dod = hmrIntensity2OD( data.d );
 
 % checking for bad channels and removing them (SD.MeasListAct has zeros 
 % input for bad channels)
-% cfg = [];
-% cfg.info      = 'Removing bad channels by enPruneChannels()';
-% cfg.tInc      = ones(size(data.aux,1),1);                                                 
-% cfg.dRange    = [0 10000000];
-% cfg.SNRthresh = 2;
-% cfg.resetFlag = 0;
-% cfg.previous  = data.cfg;
-% data.cfg      = cfg;
-% data.SD       = enPruneChannels(data.d, data.SD, cfg.tInc, cfg.dRange,...
-%                                 cfg.SNRthresh, cfg.resetFlag);
-
-% correcting for motion artifacts using Wavelet-based motion correction.                                
 cfg = [];
-cfg.info            = 'Wavelet-based motion artifact correction';
-cfg.iQr             = 1.5;
-cfg.previous        = data.cfg;
-data.cfg            = cfg;
-[~, data.dod_corr]  = evalc(...                                             % evalc supresses annoying fprintf output of hmrMotionCorrectWavelet
-                'hmrMotionCorrectWavelet(data.dod, data.SD, cfg.iQr);');
+cfg.info      = 'Removing bad channels by enPruneChannels()';
+cfg.tInc      = ones(size(data.aux,1),1);                                                 
+cfg.dRange    = [0 10000000];
+cfg.SNRthresh = 2;
+cfg.resetFlag = 0;
+cfg.previous  = data.cfg;
+data.cfg      = cfg;
+data.SD       = enPruneChannels(data.d, data.SD, cfg.tInc, cfg.dRange,...
+%                                 cfg.SNRthresh, cfg.resetFlag);
 
 % identifies motion artifacts in an input data matrix d. If any active
 % data channel exhibits a signal change greater than std_thresh or
@@ -85,14 +78,42 @@ cfg.tInc            = ones(size(data.aux,1),1);
 cfg.tMotion         = 0.5;
 cfg.tMask           = 1;
 cfg.stdevThreshold  = 50;
-cfg.ampThreshold    = 5;
+cfg.ampThreshold    = 0.4;
 cfg.previous        = data.cfg;
 data.cfg            = cfg;
 data.fs             = 1/(data.t(2)-data.t(1));                              % sampling frequency of the data
-data.tIncAuto       = hmrMotionArtifact(data.dod_corr, data.fs, data.SD,...
+[data.tIncAuto, data.tIncCh]       = hmrMotionArtifactByChannel(data.dod, data.fs, data.SD,...
                                         cfg.tInc, cfg.tMotion,...
                                         cfg.tMask, cfg.stdevThreshold,...
                                         cfg.ampThreshold);
+
+% correcting for motion artifacts using spline-interpolation motion correction.                                                                  
+if strcmp(mainCfg.splineMotionCorrection, 'yes')
+cfg = [];
+cfg.info            = 'Spline-interpolation motion artifact correction';
+cfg.p=0.99;
+cfg.previous        = data.cfg;
+data.cfg            = cfg;
+data.dod_spl = hmrMotionCorrectSpline(data.dod, data.t, data.SD, data.tIncCh, cfg.p);
+end
+
+% correcting for motion artifacts using Wavelet-based motion correction.                                
+if strcmp(mainCfg.waveletMotionCorrection, 'yes')
+cfg = [];
+cfg.info            = 'Wavelet-based motion artifact correction';
+cfg.iQr             = 1.5;
+cfg.previous        = data.cfg;
+data.cfg            = cfg;
+if strcmp(mainCfg.splineMotionCorrection, 'yes')
+data.dod_corr       = data.dod_spl;
+[~, data.dod_wav]  = evalc(...                                             % evalc supresses annoying fprintf output of hmrMotionCorrectWavelet
+                'hmrMotionCorrectWavelet(data.dod_corr, data.SD, cfg.iQr);');
+elseif
+    [~, data.dod_wav]  = evalc(...                                             % evalc supresses annoying fprintf output of hmrMotionCorrectWavelet
+                'hmrMotionCorrectWavelet(data.dod, data.SD, cfg.iQr);');
+
+end
+end
 
 % run pulse quality check
 if strcmp(mainCfg.pulseQualityCheck, 'yes')
@@ -101,7 +122,7 @@ if strcmp(mainCfg.pulseQualityCheck, 'yes')
   cfg.previous  = data.cfg;
   data.cfg      = cfg;
   fprintf('Pulse quality check. Please select bad channels, in which pulse is not visible!\n');
-  data.badChannelsPulse = CARE_pulseQualityCheck(data.dod_corr, data.SD,... % run pulse quality check on all channels 
+  data.badChannelsPulse = CARE_pulseQualityCheck(data.dod_wav, data.SD,... % run pulse quality check on all channels 
                                                  data.t);                         
 end
 
@@ -112,7 +133,7 @@ cfg.lpf             = 0.5;                                                  % in
 cfg.hpf             = 0.01;                                                 % in Hz
 cfg.previous        = data.cfg;
 data.cfg            = cfg;
-data.dod_corr_filt  = hmrBandpassFilt(data.dod_corr, data.fs, cfg.hpf, ...
+data.dod_corr_filt  = hmrBandpassFilt(data.dod_wav, data.fs, cfg.hpf, ...
                                       cfg.lpf);
 
 % convert changes in OD to changes in concentrations (HbO, HbR, and HbT)
@@ -128,13 +149,13 @@ data.hbo = squeeze(data.dc(:,1,:));
 data.hbr = squeeze(data.dc(:,2,:));
 
 % run Xu's bad channel check
-if strcmp(mainCfg.XuCuiQualityCheck, 'yes')
-  cfg = [];
-  cfg.info      = 'Xu Cui data quality check';
-  cfg.previous  = data.cfg;
-  data.cfg      = cfg;
-  data.badChannelsCui = CARE_XuCheckDataQuality(data.hbo, data.hbr);        % run Xu Cui quality check on all channels
-end
+%if strcmp(mainCfg.XuCuiQualityCheck, 'yes')
+%  cfg = [];
+%  cfg.info      = 'Xu Cui data quality check';
+%  cfg.previous  = data.cfg;
+%  data.cfg      = cfg;
+%  data.badChannelsCui = CARE_XuCheckDataQuality(data.hbo, data.hbr);        % run Xu Cui quality check on all channels
+%end
 
 % reject bad channels, set all values to NaN
 if strcmp(mainCfg.pulseQualityCheck, 'yes')  
@@ -145,13 +166,13 @@ if strcmp(mainCfg.pulseQualityCheck, 'yes')
   end
 end
 
-if strcmp(mainCfg.XuCuiQualityCheck, 'yes')
-  if ~isempty(data.badChannelsCui)
-    fprintf('Reject bad Channels (XuCuiQualityCheck), set all values to NaN\n');
-    data.hbo(:, data.badChannelsCui) = NaN;
-    data.hbr(:, data.badChannelsCui) = NaN;
-  end
-end
+%if strcmp(mainCfg.XuCuiQualityCheck, 'yes')
+%  if ~isempty(data.badChannelsCui)
+%    fprintf('Reject bad Channels (XuCuiQualityCheck), set all values to NaN\n');
+%    data.hbo(:, data.badChannelsCui) = NaN;
+%    data.hbr(:, data.badChannelsCui) = NaN;
+%  end
+%end
 
 data = rmfield(data, 'aux');                                                % remove field aux from data structure
 
