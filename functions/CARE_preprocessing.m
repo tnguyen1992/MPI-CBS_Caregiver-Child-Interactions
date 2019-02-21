@@ -66,7 +66,7 @@ cfg.resetFlag = 0;
 cfg.previous  = data.cfg;
 data.cfg      = cfg;
 data.SD       = enPruneChannels(data.d, data.SD, cfg.tInc, cfg.dRange,...
-%                                 cfg.SNRthresh, cfg.resetFlag);
+                                 cfg.SNRthresh, cfg.resetFlag);
 
 % identifies motion artifacts in an input data matrix d. If any active
 % data channel exhibits a signal change greater than std_thresh or
