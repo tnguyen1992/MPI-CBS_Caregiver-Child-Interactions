@@ -104,7 +104,7 @@ fprintf('\n');
 
 selection = false;
 while selection == false
-  cprintf([0,0.6,0], 'Do you want to apply the visual pulse quality check?\n');
+  cprintf([0,0.6,0], 'Do you want to apply the wavelet-based motion correction?\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     selection = true;
