@@ -21,7 +21,7 @@ function [ data_wtc ] = CARE_wtc( cfg, data_preproc )
 % Get and check config options
 % -------------------------------------------------------------------------
 prefix      = CARE_getopt(cfg, 'prefix', 'CARE');
-poi         = CARE_getopt(cfg, 'poi', [23 100]);
+poi         = CARE_getopt(cfg, 'poi', [10 50]);
 considerCOI = CARE_getopt(cfg, 'considerCOI', true);
 
 if ~isequal(length(poi), 2)
@@ -118,10 +118,12 @@ end
 % -------------------------------------------------------------------------
 % Allocate memory
 % -------------------------------------------------------------------------
-coherences  = zeros(numOfChan, 6);
+coherences  = zeros(numOfChan, 8);
 meanCohCollab = zeros(1, length(evtCollaboration));                         % mean coherence in a defined spectrum for condition collaboration  
 meanCohIndiv  = zeros(1, length(evtIndividual));                            % mean coherence in a defined spectrum for condition individual
 meanCohBase   = zeros(1, length(evtBaseline));                              % mean coherence in a defined spectrum for condition baseline
+meanCohTalk   = zeros(1, length(evtTalk));                                  % mean coherence in a defined spectrum for condition talk
+meanCohPreschoolForm   = zeros(1, length(evtPreschoolForm));                % mean coherence in a defined spectrum for condition preschool form
 Rsq{numOfChan} = [];
 Rsq(:) = {NaN(length(period), length(t))};
 
@@ -181,18 +183,48 @@ for i=1:1:numOfChan
                             evtBaseline(j), 1)))));
       end
     end
-
-    collaboration  = nanmean(meanCohCollab);                                % average mean coherences over trials
-    individual     = nanmean(meanCohIndiv);
-    baseline       = nanmean(meanCohBase);
+    
+    
+    if prefix=='CARE'
+    % talk
+    for j=1:1:length(evtTalk)
+      if isempty(evtStop)
+        meanCohTalk(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtTalk(j):evtTalk(j) + ...
+                            durTalk)));
+      else
+        meanCohTalk(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtTalk(j):evtStop(find(evtStop > ...
+                            evtTalk(j), 1)))));
+      end
+    end
+    
+    elseif prefix=='DCARE'
+     % preschool form
+    for j=1:1:length(evtPreschoolForm)
+      if isempty(evtStop)
+        meanCohPreschoolForm(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtPreschoolForm(j):evtPreschoolForm(j) + ...
+                            durPreschoolForm)));
+      else
+        meanCohPreschoolForm(j)    = nanmean(nanmean(Rsq{i}(pnoi(1):pnoi(2), ...
+                            evtPreschoolForm(j):evtStop(find(evtStop > ...
+                            evtPreschoolForm(j), 1)))));
+      end
+    end
+    end
+    
+%    collaboration  = nanmean(meanCohCollab);                                % average mean coherences over trials
+%    individual     = nanmean(meanCohIndiv);
+%    baseline       = nanmean(meanCohBase);
  
-    CBCI   = collaboration - baseline;                                      % coherence increase between collaboration and baseline
-    IBCI   = individual - baseline;                                         % coherence increase between individual and baseline
-    CICI   = collaboration - individual;                                    % coherence increase between collaboration and individual
- 
-    coherences(i, 1:6) = [collaboration, individual, baseline, CBCI, ...
-                          IBCI, CICI];
-  else
+    if prefix=='CARE'
+    coherences(i, 1:6) = [meanCohCollab, meanCohIndiv, meanCohBase, ...
+                          meanCohTalk];
+    elseif prefix=='DCARE'
+        coherences(i, 1:6) = [meanCohCollab, meanCohIndiv, meanCohBase, ...
+                          meanCohPreschoolForm];
+    else
     coherences(i, :) = NaN;
   end
 end
@@ -212,9 +244,8 @@ data_wtc.params               = [generalDefinitions.collabMarker, ...
                                  str2double([...
                                  num2str(generalDefinitions.collabMarker) ...
                                  num2str(generalDefinitions.indivMarker)])];
-data_wtc.paramStrings         = {'Collaboration', 'Individual', ...         % this field describes the columns of the coherences field
-                                 'Baseline', 'Collab-Base', ...
-                                 'Indiv-Base', 'Collab-Indiv'};
+data_wtc.paramStrings         = {'C1', 'C2', 'I1', 'I2', ...         % this field describes the columns of the coherences field
+                                 'R1','R2','R3', 'T'};
 data_wtc.channel              = 1:1:size(hboSub1, 2);                              
 data_wtc.eventMarkers         = eventMarkers;
 data_wtc.s                    = sMatrix;
