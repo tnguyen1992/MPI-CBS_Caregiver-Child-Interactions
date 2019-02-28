@@ -54,11 +54,11 @@ fprintf('\n');
 
 selection = false;
 while selection == false
-  cprintf([0,0.6,0], 'Do you want to use the default period of interest ([23 100]) for the coherence estimation?\n');
+  cprintf([0,0.6,0], 'Do you want to use the default period of interest ([10 50]) for the coherence estimation?\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     selection = true;
-    poi = [23 100];                                                         % period of interest in seconds, master thesis settings: [30 136]
+    poi = [10 50];                                                         % period of interest in seconds, master thesis settings: [30 136]
   elseif strcmp('n', x)
     selection = true;
     poi = [];
